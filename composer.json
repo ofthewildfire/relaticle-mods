@@ -1,0 +1,31 @@
+{
+    "name": "ofthewildfire/relaticle-mods",
+    "description": "Events and Projects modules for Relaticle CRM",
+    "type": "library",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Ofthewildfire",
+            "email": ""
+        }
+    ],
+    "require": {
+        "php": "^8.2",
+        "laravel/framework": "^11.0|^12.0",
+        "filament/filament": "^3.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "Ofthewildfire\\RelaticleModsPlugin\\": "src/"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Ofthewildfire\\RelaticleModsPlugin\\RelaticleModsServiceProvider"
+            ]
+        }
+    },
+    "minimum-stability": "stable",
+    "prefer-stable": true
+}
