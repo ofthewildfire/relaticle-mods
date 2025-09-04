@@ -14,40 +14,22 @@ class PeopleRelationManager extends RelationManager
 {
     protected static string $relationship = 'people';
 
+    // Disable create/edit of People here; only attach existing records from host app
     public function form(Form $form): Form
     {
-        return $form
-            ->schema([
-                Forms\Components\TextInput::make('first_name')
-                    ->required()
-                    ->maxLength(255),
-                Forms\Components\TextInput::make('last_name')
-                    ->required()
-                    ->maxLength(255),
-                Forms\Components\TextInput::make('email')
-                    ->email()
-                    ->maxLength(255),
-                Forms\Components\TextInput::make('phone')
-                    ->tel()
-                    ->maxLength(255),
-            ]);
+        return $form->schema([]);
     }
 
     public function table(Table $table): Table
     {
         return $table
-            ->recordTitleAttribute('first_name')
             ->columns([
-                Tables\Columns\TextColumn::make('first_name')
-                    ->searchable()
-                    ->sortable(),
-                Tables\Columns\TextColumn::make('last_name')
-                    ->searchable()
-                    ->sortable(),
-                Tables\Columns\TextColumn::make('email')
-                    ->searchable()
-                    ->sortable(),
-                Tables\Columns\TextColumn::make('phone')
+                Tables\Columns\TextColumn::make('display')
+                    ->label('Person')
+                    ->getStateUsing(function ($record): string {
+                        $name = $record->name ?? trim((string) (($record->first_name ?? '') . ' ' . ($record->last_name ?? '')));
+                        return $name !== '' ? $name : (string) ($record->email ?? $record->id);
+                    })
                     ->searchable()
                     ->sortable(),
             ])
@@ -55,18 +37,17 @@ class PeopleRelationManager extends RelationManager
                 //
             ])
             ->headerActions([
-                Tables\Actions\CreateAction::make(),
-                Tables\Actions\AttachAction::make(),
+                Tables\Actions\AttachAction::make()
+                    ->recordSelectTitleAttribute('name')
+                    ->recordSelectSearchColumns(['name', 'first_name', 'last_name', 'email'])
+                    ->recordSelectOptionsQuery(fn ($query) => $query->orderBy('name')),
             ])
             ->actions([
-                Tables\Actions\EditAction::make(),
                 Tables\Actions\DetachAction::make(),
-                Tables\Actions\DeleteAction::make(),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
                     Tables\Actions\DetachBulkAction::make(),
-                    Tables\Actions\DeleteBulkAction::make(),
                 ]),
             ]);
     }

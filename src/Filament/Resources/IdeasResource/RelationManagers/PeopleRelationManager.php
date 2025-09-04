@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Ofthewildfire\RelaticleModsPlugin\Filament\Resources\ProjectsResource\RelationManagers;
+namespace Ofthewildfire\RelaticleModsPlugin\Filament\Resources\IdeasResource\RelationManagers;
 
 use Filament\Forms;
 use Filament\Forms\Form;
@@ -12,7 +12,7 @@ use Filament\Tables\Table;
 
 class PeopleRelationManager extends RelationManager
 {
-    protected static string $relationship = 'teamMembers';
+    protected static string $relationship = 'people';
 
     public function form(Form $form): Form
     {
@@ -51,3 +51,5 @@ class PeopleRelationManager extends RelationManager
             ]);
     }
 }
+
+

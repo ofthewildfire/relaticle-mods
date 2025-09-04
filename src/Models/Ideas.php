@@ -10,6 +10,7 @@ use Filament\Facades\Filament;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\MorphToMany;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 final class Ideas extends Model
@@ -70,6 +71,24 @@ final class Ideas extends Model
         $companyClass = (string) config('relaticle-mods.classes.company');
 
         return $this->morphedByMany($companyClass, 'ideaable');
+    }
+
+    /**
+     * @return BelongsToMany<\App\Models\People, $this>
+     */
+    public function people(): BelongsToMany
+    {
+        $peopleClass = (string) config('relaticle-mods.classes.people');
+
+        return $this->belongsToMany($peopleClass, 'idea_people', 'idea_id', 'people_id');
+    }
+
+    /**
+     * @return BelongsToMany<Projects, $this>
+     */
+    public function projects(): BelongsToMany
+    {
+        return $this->belongsToMany(Projects::class, 'idea_projects', 'idea_id', 'projects_id');
     }
 }
 

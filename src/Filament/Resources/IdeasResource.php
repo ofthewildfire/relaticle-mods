@@ -72,6 +72,8 @@ class IdeasResource extends Resource
     {
         return [
             RelationManagers\CompaniesRelationManager::class,
+            RelationManagers\PeopleRelationManager::class,
+            RelationManagers\ProjectsRelationManager::class,
         ];
     }
 
