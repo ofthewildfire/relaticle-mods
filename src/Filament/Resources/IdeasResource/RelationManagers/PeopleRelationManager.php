@@ -36,10 +36,7 @@ class PeopleRelationManager extends RelationManager
                 //
             ])
             ->headerActions([
-                Tables\Actions\AttachAction::make()
-                    ->recordSelectTitleAttribute('name')
-                    ->recordSelectSearchColumns(['name', 'first_name', 'last_name', 'email'])
-                    ->recordSelectOptionsQuery(fn ($query) => $query->orderBy('name')),
+                Tables\Actions\AttachAction::make(),
             ])
             ->actions([
                 Tables\Actions\DetachAction::make(),

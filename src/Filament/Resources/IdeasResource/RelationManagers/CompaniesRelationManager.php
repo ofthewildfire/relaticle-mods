@@ -15,14 +15,8 @@ class CompaniesRelationManager extends RelationManager
 
     public function form(\Filament\Forms\Form $form): \Filament\Forms\Form
     {
-        return $form
-            ->schema([
-                Forms\Components\Select::make('companies')
-                    ->relationship('companies', 'name')
-                    ->searchable()
-                    ->preload()
-                    ->multiple(),
-            ]);
+        // Polymorphic morphToMany: create/edit isn't handled here, we attach existing companies
+        return $form->schema([]);
     }
 
     public function table(Table $table): Table
@@ -35,13 +29,15 @@ class CompaniesRelationManager extends RelationManager
                     ->sortable(),
             ])
             ->headerActions([
-                Tables\Actions\AssociateAction::make(),
+                Tables\Actions\AttachAction::make(),
             ])
             ->actions([
-                Tables\Actions\DissociateAction::make(),
+                Tables\Actions\DetachAction::make(),
             ])
             ->bulkActions([
-                Tables\Actions\DissociateBulkAction::make(),
+                Tables\Actions\BulkActionGroup::make([
+                    Tables\Actions\DetachBulkAction::make(),
+                ]),
             ]);
     }
 }
