@@ -6,16 +6,11 @@ namespace Ofthewildfire\RelaticleModsPlugin\Models;
 
 use App\Models\Concerns\HasCreator;
 use App\Models\Concerns\HasTeam;
-use Filament\Facades\Filament;
-use App\Models\Company;
-use App\Models\Opportunity;
-use App\Models\People;
-use App\Models\User;
+use App\Models\Concerns\HasNotes;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
-use Illuminate\Database\Eloquent\Relations\MorphToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 /**
@@ -29,25 +24,28 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property string|null $contact_email
  * @property int|null $company_id
  * @property int|null $manager_id
+ * @property int|null $team_id
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property \Illuminate\Support\Carbon|null $deleted_at
+ *
+ * @property \App\Models\Company|null $company
+ * @property \App\Models\User|null $manager
+ * @property \Illuminate\Database\Eloquent\Collection<int, \App\Models\People> $teamMembers
+ * @property \Illuminate\Database\Eloquent\Collection<int, \App\Models\Opportunity> $opportunities
+ * @property \Illuminate\Database\Eloquent\Collection<int, Events> $events
+ * @property \Illuminate\Database\Eloquent\Collection<int, \App\Models\Note> $notes
  */
 class Projects extends Model
 {
     use HasFactory;
     use HasTeam;
     use HasCreator;
+    use HasNotes;
     use SoftDeletes;
 
-    /**
-     * The table associated with the model.
-     */
     protected $table = 'custom_projects';
 
-    /**
-     * The attributes that are mass assignable.
-     */
     protected $fillable = [
         'project_name',
         'description',
@@ -59,87 +57,50 @@ class Projects extends Model
         'contact_email',
         'company_id',
         'manager_id',
+        'team_id',
     ];
 
-    /**
-     * The attributes that should be cast.
-     */
-    protected $casts = [
-        'project_name' => 'string',
-        'description' => 'string',
-        'budget' => 'decimal:2',
-        'start_date' => 'date',
-        'end_date' => 'date',
-        'status' => 'string',
-        'is_priority' => 'boolean',
-        'contact_email' => 'string',
-    ];
-    
-    protected static function booted(): void
+    protected function casts(): array
     {
-        static::creating(function (Projects $project): void {
-            if ($project->getAttribute('created_by') === null) {
-                $userId = Filament::auth()->id() ?? auth()->id();
-                if ($userId !== null) {
-                    $project->setAttribute('created_by', (int) $userId);
-                }
-            }
-        });
-
-        static::saving(function (Projects $project): void {
-            if ($project->getAttribute('created_by') === null) {
-                $userId = Filament::auth()->id() ?? auth()->id();
-                if ($userId !== null) {
-                    $project->setAttribute('created_by', (int) $userId);
-                }
-            }
-        });
+        return [
+            'budget' => 'decimal:2',
+            'start_date' => 'date',
+            'end_date' => 'date',
+            'is_priority' => 'boolean',
+        ];
     }
-    
+
+    // -----------------------------
+    // Relationships
+    // -----------------------------
+
     public function company(): BelongsTo
     {
-        $companyClass = (string) config('relaticle-mods.classes.company');
-
-        return $this->belongsTo($companyClass, 'company_id');
+        $class = config('relaticle-mods.classes.company', \App\Models\Company::class);
+        return $this->belongsTo($class, 'company_id');
     }
 
     public function manager(): BelongsTo
     {
-        $userClass = (string) config('relaticle-mods.classes.user');
-
-        return $this->belongsTo($userClass, 'manager_id');
-    }
-
-    public function tasks(): MorphToMany
-    {
-        $taskClass = (string) config('relaticle-mods.classes.task');
-
-        return $this->morphToMany($taskClass, 'taskable');
-    }
-
-    public function notes(): MorphToMany
-    {
-        $noteClass = (string) config('relaticle-mods.classes.note');
-
-        return $this->morphToMany($noteClass, 'noteable');
+        $class = config('relaticle-mods.classes.user', \App\Models\User::class);
+        return $this->belongsTo($class, 'manager_id');
     }
 
     public function teamMembers(): BelongsToMany
     {
-        $peopleClass = (string) config('relaticle-mods.classes.people');
-
-        return $this->belongsToMany($peopleClass, 'project_team_members', 'projects_id', 'people_id');
+        $class = config('relaticle-mods.classes.people', \App\Models\People::class);
+        return $this->belongsToMany($class, 'project_team_members', 'projects_id', 'people_id');
     }
 
     public function opportunities(): BelongsToMany
     {
-        $opportunityClass = (string) config('relaticle-mods.classes.opportunity');
-
-        return $this->belongsToMany($opportunityClass, 'project_opportunities', 'projects_id', 'opportunity_id');
+        $class = config('relaticle-mods.classes.opportunity', \App\Models\Opportunity::class);
+        return $this->belongsToMany($class, 'project_opportunities', 'projects_id', 'opportunity_id');
     }
 
     public function events(): BelongsToMany
     {
-        return $this->belongsToMany(Events::class, 'project_events', 'projects_id', 'event_id');
+        $class = config('relaticle-mods.classes.event', Events::class);
+        return $this->belongsToMany($class, 'project_events', 'projects_id', 'event_id');
     }
 }

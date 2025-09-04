@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Ofthewildfire\RelaticleModsPlugin\Filament\Resources;
 
+use App\Filament\App\Resources\CompanyResource\RelationManagers;
 use Ofthewildfire\RelaticleModsPlugin\Filament\Resources\EventsResource\Pages;
-use Ofthewildfire\RelaticleModsPlugin\Filament\Resources\EventsResource\RelationManagers;
 use Ofthewildfire\RelaticleModsPlugin\Models\Events;
 use Filament\Forms;
 use Filament\Forms\Form;
@@ -20,34 +20,42 @@ class EventsResource extends Resource
 {
     protected static ?string $model = Events::class;
 
-    protected static bool $isScopedToTenant = false;
+    protected static ?string $navigationLabel = 'Events';
 
     protected static ?string $navigationIcon = 'heroicon-o-calendar-days';
+
+    protected static ?string $recordTitleAttribute = 'name';
 
     protected static ?string $navigationGroup = 'Workspace';
 
     protected static ?int $navigationSort = 4;
 
+    protected static bool $isScopedToTenant = false;
+
     public static function form(Form $form): Form
     {
-        return $form
-            ->schema([
-                Forms\Components\TextInput::make('name')
-                    ->required()
-                    ->maxLength(255),
-                Forms\Components\Textarea::make('description')
-                    ->columnSpanFull(),
-                Forms\Components\DateTimePicker::make('start_date')
-                    ->required(),
-                Forms\Components\DateTimePicker::make('end_date'),
-                Forms\Components\TextInput::make('location')
-                    ->maxLength(255),
-                Forms\Components\Select::make('account_owner_id')
-                    ->relationship('accountOwner', 'name')
-                    ->label('Event Owner')
-                    ->searchable()
-                    ->preload(),
-            ]);
+        return $form->schema([
+            Forms\Components\TextInput::make('name')
+                ->required()
+                ->maxLength(255),
+
+            Forms\Components\Textarea::make('description')
+                ->columnSpanFull(),
+
+            Forms\Components\DateTimePicker::make('start_date')
+                ->required(),
+
+            Forms\Components\DateTimePicker::make('end_date'),
+
+            Forms\Components\TextInput::make('location')
+                ->maxLength(255),
+
+            Forms\Components\Select::make('account_owner_id')
+                ->relationship('accountOwner', 'name')
+                ->label('Event Owner')
+                ->searchable()
+                ->preload(),
+        ]);
     }
 
     public static function table(Table $table): Table
@@ -58,33 +66,64 @@ class EventsResource extends Resource
                     ->label('')
                     ->size(40)
                     ->square(),
+
                 Tables\Columns\TextColumn::make('name')
                     ->searchable()
                     ->sortable(),
+
                 Tables\Columns\TextColumn::make('location')
                     ->searchable()
                     ->sortable(),
+
                 Tables\Columns\TextColumn::make('start_date')
                     ->dateTime()
                     ->sortable(),
+
                 Tables\Columns\TextColumn::make('end_date')
                     ->dateTime()
                     ->sortable(),
+
                 Tables\Columns\TextColumn::make('accountOwner.name')
                     ->label('Event Owner')
                     ->searchable()
                     ->sortable(),
+
+                Tables\Columns\TextColumn::make('createdBy.name')
+                    ->label('Created By')
+                    ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: true),
+
                 Tables\Columns\TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
+            ->defaultSort('start_date', 'desc')
             ->filters([
                 Tables\Filters\TrashedFilter::make(),
+
+                Tables\Filters\Filter::make('upcoming')
+                    ->label('Upcoming')
+                    ->query(fn (Builder $query) => $query->where('start_date', '>=', now())),
+
+                Tables\Filters\Filter::make('past')
+                    ->label('Past')
+                    ->query(fn (Builder $query) => $query->where('end_date', '<', now())),
+
+                SelectFilter::make('account_owner_id')
+                    ->label('Event Owner')
+                    ->relationship('accountOwner', 'name')
+                    ->searchable()
+                    ->preload(),
+            ])
+            ->groups([
+                Tables\Grouping\Group::make('start_date')
+                    ->date()
+                    ->collapsible(),
             ])
             ->actions([
-                Tables\Actions\ViewAction::make(),
-                Tables\Actions\EditAction::make(),
+                Tables\Actions\ViewAction::make()->icon('heroicon-o-eye'),
+                Tables\Actions\EditAction::make()->icon('heroicon-o-pencil'),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
@@ -117,12 +156,11 @@ class EventsResource extends Resource
 
     public static function getEloquentQuery(): Builder
     {
-        $teamId = Filament::getTenant()?->id ?? auth()->user()?->current_team_id ?? auth()->user()?->team_id;
-
         return parent::getEloquentQuery()
-            ->withoutGlobalScopes([
-                SoftDeletingScope::class,
-            ])
-            ->when($teamId !== null, fn (Builder $query) => $query->where('team_id', $teamId));
+            ->withoutGlobalScopes([SoftDeletingScope::class])
+            ->when(
+                Filament::getTenant()?->id ?? auth()->user()?->current_team_id ?? auth()->user()?->team_id,
+                fn (Builder $query, $teamId) => $query->where('team_id', $teamId)
+            );
     }
 }

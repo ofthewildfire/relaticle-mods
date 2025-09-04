@@ -6,18 +6,34 @@ namespace Ofthewildfire\RelaticleModsPlugin\Models;
 
 use App\Models\Concerns\HasCreator;
 use App\Models\Concerns\HasTeam;
+use App\Models\Concerns\HasNotes; 
 use Filament\Facades\Filament;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\MorphToMany;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\MorphToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
+/**
+ * @property string $content
+ * @property string $creation_source
+ * @property int|null $team_id
+ * @property int|null $created_by
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property \Illuminate\Support\Carbon|null $deleted_at
+ *
+ * @property \Illuminate\Database\Eloquent\Collection<int, \App\Models\Company> $companies
+ * @property \Illuminate\Database\Eloquent\Collection<int, \App\Models\People> $people
+ * @property \Illuminate\Database\Eloquent\Collection<int, Projects> $projects
+ * @property \Illuminate\Database\Eloquent\Collection<int, \App\Models\Note> $notes
+ */
 final class Ideas extends Model
 {
-    use HasCreator;
     use HasFactory;
     use HasTeam;
+    use HasCreator;
+    use HasNotes; 
     use SoftDeletes;
 
     protected $table = 'ideas';
@@ -28,6 +44,8 @@ final class Ideas extends Model
     protected $fillable = [
         'content',
         'creation_source',
+        'team_id', 
+        'created_by', 
     ];
 
     /**
@@ -42,6 +60,9 @@ final class Ideas extends Model
         ];
     }
 
+    /**
+     * Automatically set created_by during creation.
+     */
     protected static function booted(): void
     {
         static::creating(function (Ideas $idea): void {
@@ -51,45 +72,59 @@ final class Ideas extends Model
                     $idea->setAttribute('created_by', (int) $userId);
                 }
             }
-        });
 
-        static::saving(function (Ideas $idea): void {
-            if ($idea->getAttribute('created_by') === null) {
-                $userId = Filament::auth()->id() ?? auth()->id();
-                if ($userId !== null) {
-                    $idea->setAttribute('created_by', (int) $userId);
-                }
+            // Ensure team_id is set if not provided
+            if ($idea->getAttribute('team_id') === null && Filament::getCurrentTeam()) {
+                $idea->setAttribute('team_id', Filament::getCurrentTeam()->id);
             }
         });
     }
 
+    // -----------------------------
+    // Relationships
+    // -----------------------------
+
     /**
-     * @return MorphToMany<\Illuminate\Database\Eloquent\Model, $this>
+     * Many-to-many polymorphic: Ideas can belong to multiple companies.
+     *
+     * @return MorphToMany<\App\Models\Company, $this>
      */
     public function companies(): MorphToMany
     {
-        $companyClass = (string) config('relaticle-mods.classes.company');
+        $companyClass = config('relaticle-mods.classes.company', \App\Models\Company::class);
 
-        return $this->morphedByMany($companyClass, 'ideaable');
+        return $this->morphedByMany($companyClass, 'ideaable', 'ideaables', 'idea_id', 'ideaable_id');
     }
 
     /**
+     * Direct many-to-many with People.
+     *
      * @return BelongsToMany<\App\Models\People, $this>
      */
     public function people(): BelongsToMany
     {
-        $peopleClass = (string) config('relaticle-mods.classes.people');
+        $peopleClass = config('relaticle-mods.classes.people', \App\Models\People::class);
 
-        return $this->belongsToMany($peopleClass, 'idea_people', 'idea_id', 'people_id');
+        return $this->belongsToMany(
+            $peopleClass,
+            'idea_people',
+            'idea_id',
+            'people_id'
+        );
     }
 
     /**
+     * Many-to-many with Projects.
+     *
      * @return BelongsToMany<Projects, $this>
      */
     public function projects(): BelongsToMany
     {
-        return $this->belongsToMany(Projects::class, 'idea_projects', 'idea_id', 'projects_id');
+        return $this->belongsToMany(
+            Projects::class,
+            'idea_projects',
+            'idea_id',
+            'projects_id'
+        );
     }
 }
-
-

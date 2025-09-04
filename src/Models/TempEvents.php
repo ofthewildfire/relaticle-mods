@@ -7,7 +7,6 @@ namespace Ofthewildfire\RelaticleModsPlugin\Models;
 use App\Models\Concerns\HasCreator;
 use App\Models\Concerns\HasNotes;
 use App\Models\Concerns\HasTeam;
-use App\Enums\CreationSource; 
 use Filament\Facades\Filament;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -24,36 +23,25 @@ use Spatie\MediaLibrary\InteractsWithMedia;
 
 /**
  * @property string $name
- * @property string|null $description
+ * @property string $description
  * @property Carbon $start_date
  * @property Carbon|null $end_date
  * @property string $location
- * @property int|null $team_id
- * @property int|null $created_by
- * @property int|null $account_owner_id
- * @property CreationSource|string $creation_source
- * @property Carbon|null $created_at
- * @property Carbon|null $updated_at
  * @property Carbon|null $deleted_at
- *
- * @property \App\Models\User|null $accountOwner
- * @property \Illuminate\Database\Eloquent\Collection<int, \App\Models\People> $people
- * @property \Illuminate\Database\Eloquent\Collection<int, \App\Models\Opportunity> $opportunities
- * @property \Illuminate\Database\Eloquent\Collection<int, \App\Models\Task> $tasks
- * @property \Illuminate\Database\Eloquent\Collection<int, \App\Models\Note> $notes
- * @property \Illuminate\Database\Eloquent\Collection<int, Projects> $projects
+ * @property CreationSource $creation_source
+ * @property-read string $created_by
  */
 final class Events extends Model implements HasCustomFields, HasMedia
 {
-    use HasFactory;
-    use HasTeam;
+    protected $table = 'events';
+    
     use HasCreator;
-    use HasNotes; 
+    use HasFactory;
+    use HasNotes;
+    use HasTeam;
     use InteractsWithMedia;
     use SoftDeletes;
     use UsesCustomFields;
-
-    protected $table = 'events';
 
     /**
      * @var list<string>
@@ -65,16 +53,14 @@ final class Events extends Model implements HasCustomFields, HasMedia
         'end_date',
         'location',
         'creation_source',
-        'account_owner_id',
-        'team_id', 
-        'created_by', 
     ];
 
     /**
      * @var array<string, mixed>
      */
     protected $attributes = [
-        'creation_source' => 'web', // fallback
+        // Default will be set in casts() if enum is available; keep string fallback
+        'creation_source' => 'web',
     ];
 
     /**
@@ -93,34 +79,31 @@ final class Events extends Model implements HasCustomFields, HasMedia
         ];
     }
 
-    /**
-     * Boot the model and set created_by/team_id on creation.
-     */
     protected static function booted(): void
     {
         static::creating(function (Events $event): void {
-            // Set created_by
             if ($event->getAttribute('created_by') === null) {
                 $userId = Filament::auth()->id() ?? auth()->id();
                 if ($userId !== null) {
                     $event->setAttribute('created_by', (int) $userId);
                 }
             }
+        });
 
-            // Set team_id if not set
-            if ($event->getAttribute('team_id') === null && Filament::getCurrentTeam()) {
-                $event->setAttribute('team_id', Filament::getCurrentTeam()->id);
+        static::saving(function (Events $event): void {
+            if ($event->getAttribute('created_by') === null) {
+                $userId = Filament::auth()->id() ?? auth()->id();
+                if ($userId !== null) {
+                    $event->setAttribute('created_by', (int) $userId);
+                }
             }
         });
     }
 
-    // -----------------------------
-    // Accessors
-    // -----------------------------
-
     public function getBannerAttribute(): string
     {
         $banner = $this->getFirstMediaUrl('banner');
+
         if ($banner !== '' && $banner !== '0') {
             return $banner;
         }
@@ -131,10 +114,6 @@ final class Events extends Model implements HasCustomFields, HasMedia
         return $avatarService ? $avatarService->generateAuto(name: $this->name) : '';
     }
 
-    // -----------------------------
-    // Relationships
-    // -----------------------------
-
     /**
      * Team member responsible for managing the event
      *
@@ -142,18 +121,17 @@ final class Events extends Model implements HasCustomFields, HasMedia
      */
     public function accountOwner(): BelongsTo
     {
-        $userClass = config('relaticle-mods.classes.user', \App\Models\User::class);
+        $userClass = (string) config('relaticle-mods.classes.user');
+
         return $this->belongsTo($userClass, 'account_owner_id');
     }
 
     /**
-     * People attending or involved in the event
-     *
-     * @return BelongsToMany<\App\Models\People, $this>
+     * @return BelongsToMany<People, $this>
      */
     public function people(): BelongsToMany
     {
-        $peopleClass = config('relaticle-mods.classes.people', \App\Models\People::class);
+        $peopleClass = (string) config('relaticle-mods.classes.people');
 
         return $this->belongsToMany($peopleClass, 'event_people', 'event_id', 'people_id')
             ->withPivot('role')
@@ -161,39 +139,40 @@ final class Events extends Model implements HasCustomFields, HasMedia
     }
 
     /**
-     * Opportunities linked to this event
-     *
      * @return HasMany<\App\Models\Opportunity, $this>
      */
     public function opportunities(): HasMany
     {
-        $opportunityClass = config('relaticle-mods.classes.opportunity', \App\Models\Opportunity::class);
-        return $this->hasMany($opportunityClass, 'event_id'); // adjust foreign key if needed
+        $opportunityClass = (string) config('relaticle-mods.classes.opportunity');
+
+        return $this->hasMany($opportunityClass);
     }
 
     /**
-     * Tasks assigned to this event (polymorphic)
-     *
      * @return MorphToMany<\App\Models\Task, $this>
      */
     public function tasks(): MorphToMany
     {
-        $taskClass = config('relaticle-mods.classes.task', \App\Models\Task::class);
+        $taskClass = (string) config('relaticle-mods.classes.task');
+
         return $this->morphToMany($taskClass, 'taskable');
     }
 
     /**
-     * Projects associated with this event
-     *
+     * @return MorphToMany<\App\Models\Note, $this>
+     */
+    public function notes(): MorphToMany
+    {
+        $noteClass = (string) config('relaticle-mods.classes.note');
+
+        return $this->morphToMany($noteClass, 'noteable');
+    }
+
+    /**
      * @return BelongsToMany<Projects, $this>
      */
     public function projects(): BelongsToMany
     {
-        return $this->belongsToMany(
-            Projects::class,
-            'project_events',
-            'event_id',
-            'projects_id'
-        );
+        return $this->belongsToMany(Projects::class, 'project_events', 'event_id', 'projects_id');
     }
 }
