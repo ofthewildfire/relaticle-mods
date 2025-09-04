@@ -33,98 +33,110 @@ class ViewProjects extends ViewRecord
     {
         return $infolist
             ->schema([
-                Split::make([
-                    // Left Side: Project Info
-                    Section::make([
+                Section::make('Project Overview')
+                    ->schema([
                         Split::make([
-                            // Project Name (Large)
                             AvatarName::make('project_name')
                                 ->name('project_name')
-                                ->textSize('xl')
-                                ->label(''), // Hide label
+                                ->textSize('2xl')
+                                ->label('')
+                                ->columnSpanFull(),
+                        ]),
 
-                            // Created By
-                            AvatarName::make('creator')
-                                ->avatar('creator.avatar')
-                                ->name('creator.name')
-                                ->avatarSize('sm')
-                                ->textSize('sm')
-                                ->circular()
-                                ->label('Created By'),
+                        Split::make([
+                            // Left Column - Project Details
+                            Section::make('Project Details')
+                                ->schema([
+                                    TextEntry::make('status')
+                                        ->label('Status')
+                                        ->badge()
+                                        ->color(fn (string $state): string => match ($state) {
+                                            'planning' => 'gray',
+                                            'active' => 'success',
+                                            'on-hold' => 'warning',
+                                            'completed' => 'info',
+                                            'archived' => 'secondary',
+                                            default => 'gray',
+                                        })
+                                        ->icon('heroicon-o-flag'),
 
-                            // Project Manager
-                            AvatarName::make('manager')
-                                ->avatar('manager.avatar')
-                                ->name('manager.name')
-                                ->avatarSize('sm')
-                                ->textSize('sm')
-                                ->circular()
-                                ->label('Project Manager'),
-                        ])->from('md'),
+                                    TextEntry::make('is_priority')
+                                        ->label('Priority')
+                                        ->icon('heroicon-o-star')
+                                        ->formatStateUsing(fn ($state) => $state ? 'High Priority' : 'Normal')
+                                        ->color(fn ($state) => $state ? 'danger' : 'secondary'),
 
-                        // Custom Fields
-                        CustomFieldsInfolists::make(),
-                    ])->columnSpan(['md' => 8]),
+                                    TextEntry::make('budget')
+                                        ->label('Budget')
+                                        ->icon('heroicon-o-currency-dollar')
+                                        ->money('USD')
+                                        ->placeholder('Not set'),
 
-                    // Right Side: Metadata
-                    Section::make([
-                        TextEntry::make('start_date')
-                            ->label('Start Date')
-                            ->icon('heroicon-o-calendar')
-                            ->date(),
+                                ])
+                                ->columns(2)
+                                ->columnSpan(['md' => 6]),
 
-                        TextEntry::make('end_date')
-                            ->label('End Date')
-                            ->icon('heroicon-o-calendar')
-                            ->date(),
+                            Section::make('Timeline & Team')
+                                ->schema([
+                                    TextEntry::make('start_date')
+                                        ->label('Start Date')
+                                        ->icon('heroicon-o-calendar-days')
+                                        ->date()
+                                        ->placeholder('Not set'),
 
-                        TextEntry::make('budget')
-                            ->label('Budget')
-                            ->icon('heroicon-o-currency-dollar')
-                            ->money('USD'), // change if needed
+                                    TextEntry::make('end_date')
+                                        ->label('End Date')
+                                        ->icon('heroicon-o-calendar-days')
+                                        ->date()
+                                        ->placeholder('Not set'),
 
-                        TextEntry::make('status')
-                            ->label('Status')
-                            ->badge()
-                            ->color(fn (string $state): string => match ($state) {
-                                'planning' => 'gray',
-                                'active' => 'success',
-                                'on-hold' => 'warning',
-                                'completed' => 'info',
-                                'archived' => 'secondary',
-                                default => 'gray',
-                            }),
+                                    AvatarName::make('manager')
+                                        ->avatar('manager.avatar')
+                                        ->name('manager.name')
+                                        ->avatarSize('sm')
+                                        ->textSize('sm')
+                                        ->circular()
+                                        ->label('Project Manager')
+                                        ->placeholder('Not assigned'),
+                                ])
+                                ->columns(2)
+                                ->columnSpan(['md' => 6]),
+                        ]),
 
-                        TextEntry::make('is_priority')
-                            ->label('Priority')
-                            ->icon('heroicon-o-star')
-                            ->formatStateUsing(fn ($state) => $state ? 'Yes' : 'No')
-                            ->color(fn ($state) => $state ? 'danger' : 'secondary'),
+                        Section::make('Description')
+                            ->schema([
+                                TextEntry::make('description')
+                                    ->label('')
+                                    ->placeholder('No description provided')
+                                    ->columnSpanFull(),
+                            ])
+                            ->collapsible()
+                            ->collapsed(false)
+                            ->columnSpanFull(),
 
-                        TextEntry::make('created_at')
-                            ->label('Created')
-                            ->icon('heroicon-o-clock')
-                            ->dateTime(),
+                        // Custom Fields Section
+                        CustomFieldsInfolists::make()
+                            ->columnSpanFull(),
 
-                        TextEntry::make('updated_at')
-                            ->label('Last Updated')
-                            ->icon('heroicon-o-clock')
-                            ->dateTime(),
+                        // Metadata Section
+                        Split::make([
+                            TextEntry::make('created_at')
+                                ->label('Created')
+                                ->icon('heroicon-o-clock')
+                                ->dateTime()
+                                ->columnSpan(['md' => 6]),
+
+                            TextEntry::make('updated_at')
+                                ->label('Last Updated')
+                                ->icon('heroicon-o-clock')
+                                ->dateTime()
+                                ->columnSpan(['md' => 6]),
+                        ])
+                            ->columnSpanFull(),
                     ])
-                        ->grow(false)
-                        ->columnSpan(['md' => 4]),
-                ])
                     ->columns(1)
-                    ->columnSpan('full'),
+                    ->columnSpanFull(),
             ]);
     }
 
-    public function getRelationManagers(): array
-    {
-        return [
-            RelationManagers\PeopleRelationManager::class,
-            RelationManagers\TasksRelationManager::class,
-            RelationManagers\NotesRelationManager::class,
-        ];
-    }
 }

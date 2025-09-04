@@ -9,41 +9,61 @@ use Filament\Forms\Form;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Tables;
 use Filament\Tables\Table;
+use Relaticle\CustomFields\Filament\Forms\Components\CustomFieldsComponent;
+use Relaticle\CustomFields\Filament\Tables\Columns\CustomFieldsColumn;
 
-class PeopleRelationManager extends RelationManager
+final class PeopleRelationManager extends RelationManager
 {
-    protected static string $relationship = 'teamMembers';
+    protected static string $relationship = 'people';
+
+    protected static ?string $modelLabel = 'person';
+
+    protected static ?string $icon = 'heroicon-o-user';
 
     public function form(Form $form): Form
     {
-        return $form->schema([]);
+        return $form
+            ->schema([
+                Forms\Components\TextInput::make('name')
+                    ->required()
+                    ->maxLength(255)
+                    ->columnSpanFull(),
+                CustomFieldsComponent::make()
+                    ->columnSpanFull()
+                    ->columns(),
+            ]);
     }
 
     public function table(Table $table): Table
     {
         return $table
+            ->recordTitleAttribute('name')
             ->columns([
-                Tables\Columns\TextColumn::make('display')
-                    ->label('Person')
-                    ->getStateUsing(function ($record): string {
-                        $name = $record->name ?? trim((string) (($record->first_name ?? '') . ' ' . ($record->last_name ?? '')));
-                        return $name !== '' ? $name : (string) ($record->email ?? $record->id);
-                    })
-                    ->searchable()
-                    ->sortable(),
+                Tables\Columns\TextColumn::make('name'),
             ])
+            ->pushColumns(CustomFieldsColumn::forRelationManager($this))
             ->filters([
                 //
             ])
             ->headerActions([
+                Tables\Actions\CreateAction::make()
+                    ->mutateFormDataUsing(function (array $data): array {
+                        $data['team_id'] = \Filament\Facades\Filament::getTenant()?->id ?? auth()->user()?->current_team_id ?? auth()->user()?->team_id;
+                        return $data;
+                    }),
                 Tables\Actions\AttachAction::make(),
             ])
             ->actions([
-                Tables\Actions\DetachAction::make(),
+                Tables\Actions\ActionGroup::make([
+                    Tables\Actions\EditAction::make(),
+                    Tables\Actions\DetachAction::make(),
+                    Tables\Actions\DeleteAction::make(),
+                ]),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
                     Tables\Actions\DetachBulkAction::make(),
+                    Tables\Actions\DeleteBulkAction::make(),
                 ]),
             ]);
     }

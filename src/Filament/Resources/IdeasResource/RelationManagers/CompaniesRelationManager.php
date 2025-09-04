@@ -8,35 +8,64 @@ use Filament\Forms;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Tables;
 use Filament\Tables\Table;
+use Relaticle\CustomFields\Filament\Forms\Components\CustomFieldsComponent;
+use Relaticle\CustomFields\Filament\Tables\Columns\CustomFieldsColumn;
 
-class CompaniesRelationManager extends RelationManager
+final class CompaniesRelationManager extends RelationManager
 {
     protected static string $relationship = 'companies';
 
-    public function form(\Filament\Forms\Form $form): \Filament\Forms\Form
+    protected static ?string $modelLabel = 'company';
+
+    protected static ?string $icon = 'heroicon-o-building-office';
+
+    public function form(Forms\Form $form): Forms\Form
     {
-        // Polymorphic morphToMany: create/edit isn't handled here, we attach existing companies
-        return $form->schema([]);
+        return $form
+            ->schema([
+                Forms\Components\TextInput::make('name')
+                    ->required()
+                    ->maxLength(255)
+                    ->columnSpanFull(),
+                CustomFieldsComponent::make()
+                    ->columnSpanFull()
+                    ->columns(),
+            ]);
     }
 
     public function table(Table $table): Table
     {
         return $table
+            ->recordTitleAttribute('name')
             ->columns([
                 Tables\Columns\TextColumn::make('name')
                     ->label('Company')
                     ->searchable()
                     ->sortable(),
             ])
+            ->pushColumns(CustomFieldsColumn::forRelationManager($this))
+            ->filters([
+                //
+            ])
             ->headerActions([
+                Tables\Actions\CreateAction::make()
+                    ->mutateFormDataUsing(function (array $data): array {
+                        $data['team_id'] = \Filament\Facades\Filament::getTenant()?->id ?? auth()->user()?->current_team_id ?? auth()->user()?->team_id;
+                        return $data;
+                    }),
                 Tables\Actions\AttachAction::make(),
             ])
             ->actions([
-                Tables\Actions\DetachAction::make(),
+                Tables\Actions\ActionGroup::make([
+                    Tables\Actions\EditAction::make(),
+                    Tables\Actions\DetachAction::make(),
+                    Tables\Actions\DeleteAction::make(),
+                ]),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
                     Tables\Actions\DetachBulkAction::make(),
+                    Tables\Actions\DeleteBulkAction::make(),
                 ]),
             ]);
     }

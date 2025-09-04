@@ -8,15 +8,17 @@ return new class extends Migration
 {
     public function up(): void
     {
-        Schema::create('noteables', function (Blueprint $table) {
-            $table->id();
-            $table->unsignedBigInteger('note_id');
-            $table->morphs('noteable');
-            $table->timestamps();
+        if (!Schema::hasTable('noteables')) {
+            Schema::create('noteables', function (Blueprint $table) {
+                $table->id();
+                $table->unsignedBigInteger('note_id');
+                $table->morphs('noteable');
+                $table->timestamps();
 
-            $table->foreign('note_id')->references('id')->on('notes')->onDelete('cascade');
-            $table->unique(['note_id', 'noteable_id', 'noteable_type']);
-        });
+                $table->foreign('note_id')->references('id')->on('notes')->onDelete('cascade');
+                $table->unique(['note_id', 'noteable_id', 'noteable_type']);
+            });
+        }
     }
 
     public function down(): void

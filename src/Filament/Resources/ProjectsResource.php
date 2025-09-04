@@ -4,9 +4,7 @@ declare(strict_types=1);
 
 namespace Ofthewildfire\RelaticleModsPlugin\Filament\Resources;
 
-use Ofthewildfire\RelaticleModsPlugin\Filament\Resources\ProjectsResource\Pages;
-use Ofthewildfire\RelaticleModsPlugin\Filament\Resources\ProjectsResource\RelationManagers;
-use Ofthewildfire\RelaticleModsPlugin\Models\Projects;
+use Filament\Facades\Filament;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
@@ -14,7 +12,10 @@ use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
-use Filament\Facades\Filament;
+use Ofthewildfire\RelaticleModsPlugin\Filament\Resources\ProjectsResource\Pages;
+use Ofthewildfire\RelaticleModsPlugin\Filament\Resources\ProjectsResource\RelationManagers;
+use Ofthewildfire\RelaticleModsPlugin\Models\Projects;
+use Relaticle\CustomFields\Filament\Forms\Components\CustomFieldsComponent;
 
 class ProjectsResource extends Resource
 {
@@ -65,6 +66,7 @@ class ProjectsResource extends Resource
                     ->relationship('manager', 'name')
                     ->searchable()
                     ->preload(),
+                CustomFieldsComponent::make()->columns(1),
             ]);
     }
 
@@ -157,6 +159,6 @@ class ProjectsResource extends Resource
             ->withoutGlobalScopes([
                 SoftDeletingScope::class,
             ])
-            ->when($teamId !== null, fn(Builder $query) => $query->where('team_id', $teamId));
+            ->when($teamId !== null, fn (Builder $query) => $query->where('team_id', $teamId));
     }
 }

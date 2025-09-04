@@ -4,53 +4,39 @@ declare(strict_types=1);
 
 namespace Ofthewildfire\RelaticleModsPlugin\Filament\Resources\IdeasResource\RelationManagers;
 
-use Filament\Forms;
+use App\Filament\App\Resources\TaskResource\Forms\TaskForm;
 use Filament\Forms\Form;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Tables;
 use Filament\Tables\Table;
-use Relaticle\CustomFields\Filament\Forms\Components\CustomFieldsComponent;
 use Relaticle\CustomFields\Filament\Tables\Columns\CustomFieldsColumn;
 
-final class PeopleRelationManager extends RelationManager
+final class TasksRelationManager extends RelationManager
 {
-    protected static string $relationship = 'people';
+    protected static string $relationship = 'tasks';
 
-    protected static ?string $modelLabel = 'person';
+    protected static ?string $modelLabel = 'task';
 
-    protected static ?string $icon = 'heroicon-o-user';
+    protected static ?string $icon = 'heroicon-o-check-circle';
 
     public function form(Form $form): Form
     {
-        return $form
-            ->schema([
-                Forms\Components\TextInput::make('name')
-                    ->required()
-                    ->maxLength(255)
-                    ->columnSpanFull(),
-                CustomFieldsComponent::make()
-                    ->columnSpanFull()
-                    ->columns(),
-            ]);
+        return TaskForm::get($form, ['ideas']);
     }
 
     public function table(Table $table): Table
     {
         return $table
-            ->recordTitleAttribute('name')
+            ->recordTitleAttribute('title')
             ->columns([
-                Tables\Columns\TextColumn::make('name'),
+                Tables\Columns\TextColumn::make('title'),
             ])
             ->pushColumns(CustomFieldsColumn::forRelationManager($this))
             ->filters([
                 //
             ])
             ->headerActions([
-                Tables\Actions\CreateAction::make()
-                    ->mutateFormDataUsing(function (array $data): array {
-                        $data['team_id'] = \Filament\Facades\Filament::getTenant()?->id ?? auth()->user()?->current_team_id ?? auth()->user()?->team_id;
-                        return $data;
-                    }),
+                Tables\Actions\CreateAction::make(),
                 Tables\Actions\AttachAction::make(),
             ])
             ->actions([
@@ -68,5 +54,3 @@ final class PeopleRelationManager extends RelationManager
             ]);
     }
 }
-
-

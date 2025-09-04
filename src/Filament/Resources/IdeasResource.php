@@ -15,6 +15,7 @@ use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Ofthewildfire\RelaticleModsPlugin\Filament\Resources\IdeasResource\Pages;
 use Ofthewildfire\RelaticleModsPlugin\Filament\Resources\IdeasResource\RelationManagers;
 use Ofthewildfire\RelaticleModsPlugin\Models\Ideas;
+use Relaticle\CustomFields\Filament\Forms\Components\CustomFieldsComponent;
 
 class IdeasResource extends Resource
 {
@@ -37,6 +38,7 @@ class IdeasResource extends Resource
                     ->rows(8)
                     ->required()
                     ->columnSpanFull(),
+                CustomFieldsComponent::make()->columns(1),
             ]);
     }
 
@@ -71,9 +73,10 @@ class IdeasResource extends Resource
     public static function getRelations(): array
     {
         return [
-            RelationManagers\CompaniesRelationManager::class,
             RelationManagers\PeopleRelationManager::class,
             RelationManagers\ProjectsRelationManager::class,
+            RelationManagers\TasksRelationManager::class,
+            RelationManagers\NotesRelationManager::class,
         ];
     }
 
