@@ -8,7 +8,7 @@ return new class extends Migration
 {
     public function up(): void
     {
-        Schema::create('taskable', function (Blueprint $table) {
+        Schema::create('taskables', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('task_id');
             $table->morphs('taskable');
@@ -21,6 +21,6 @@ return new class extends Migration
 
     public function down(): void
     {
-        Schema::dropIfExists('taskable');
+        Schema::dropIfExists('taskables');
     }
 };

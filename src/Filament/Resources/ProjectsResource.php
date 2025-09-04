@@ -77,7 +77,7 @@ class ProjectsResource extends Resource
                     ->sortable(),
                 Tables\Columns\TextColumn::make('status')
                     ->badge()
-                    ->color(fn (string $state): string => match ($state) {
+                    ->color(fn(string $state): string => match ($state) {
                         'planning' => 'gray',
                         'active' => 'success',
                         'on_hold' => 'warning',
@@ -157,6 +157,6 @@ class ProjectsResource extends Resource
             ->withoutGlobalScopes([
                 SoftDeletingScope::class,
             ])
-            ->when($teamId !== null, fn (Builder $query) => $query->where('team_id', $teamId));
+            ->when($teamId !== null, fn(Builder $query) => $query->where('team_id', $teamId));
     }
 }

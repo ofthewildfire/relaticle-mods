@@ -8,7 +8,7 @@ return new class extends Migration
 {
     public function up(): void
     {
-        Schema::create('noteable', function (Blueprint $table) {
+        Schema::create('noteables', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('note_id');
             $table->morphs('noteable');
@@ -21,6 +21,6 @@ return new class extends Migration
 
     public function down(): void
     {
-        Schema::dropIfExists('noteable');
+        Schema::dropIfExists('noteables');
     }
 };

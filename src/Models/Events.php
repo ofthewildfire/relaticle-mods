@@ -142,7 +142,7 @@ final class Events extends Model implements HasCustomFields
     public function notes(): MorphToMany
     {
         $noteClass = config('relaticle-mods.classes.note', \App\Models\Note::class);
-        return $this->morphToMany($noteClass, 'noteable', 'noteable', 'noteable_id', 'note_id');
+        return $this->morphToMany($noteClass, 'noteable');
     }
 
     /**
@@ -178,7 +178,7 @@ final class Events extends Model implements HasCustomFields
     public function tasks(): MorphToMany
     {
         $taskClass = config('relaticle-mods.classes.task', \App\Models\Task::class);
-        return $this->morphToMany($taskClass, 'taskable', 'taskable', 'taskable_id', 'task_id');
+        return $this->morphToMany($taskClass, 'taskable');
     }
 
     /**
