@@ -40,6 +40,15 @@ final class Ideas extends Model
         ];
     }
 
+    protected static function booted(): void
+    {
+        static::creating(function (Ideas $idea): void {
+            if ($idea->getAttribute('created_by') === null && auth()->id() !== null) {
+                $idea->setAttribute('created_by', (int) auth()->id());
+            }
+        });
+    }
+
     /**
      * @return MorphToMany<\Illuminate\Database\Eloquent\Model, $this>
      */

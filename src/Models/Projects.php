@@ -74,6 +74,15 @@ class Projects extends Model
         'contact_email' => 'string',
     ];
     
+    protected static function booted(): void
+    {
+        static::creating(function (Projects $project): void {
+            if ($project->getAttribute('created_by') === null && auth()->id() !== null) {
+                $project->setAttribute('created_by', (int) auth()->id());
+            }
+        });
+    }
+    
     public function company(): BelongsTo
     {
         $companyClass = (string) config('relaticle-mods.classes.company');

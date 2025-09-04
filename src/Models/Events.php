@@ -78,6 +78,15 @@ final class Events extends Model implements HasCustomFields, HasMedia
         ];
     }
 
+    protected static function booted(): void
+    {
+        static::creating(function (Events $event): void {
+            if ($event->getAttribute('created_by') === null && auth()->id() !== null) {
+                $event->setAttribute('created_by', (int) auth()->id());
+            }
+        });
+    }
+
     public function getBannerAttribute(): string
     {
         $banner = $this->getFirstMediaUrl('banner');
