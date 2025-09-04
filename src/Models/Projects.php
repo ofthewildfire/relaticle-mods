@@ -85,6 +85,15 @@ class Projects extends Model
                 }
             }
         });
+
+        static::saving(function (Projects $project): void {
+            if ($project->getAttribute('created_by') === null) {
+                $userId = Filament::auth()->id() ?? auth()->id();
+                if ($userId !== null) {
+                    $project->setAttribute('created_by', (int) $userId);
+                }
+            }
+        });
     }
     
     public function company(): BelongsTo

@@ -89,6 +89,15 @@ final class Events extends Model implements HasCustomFields, HasMedia
                 }
             }
         });
+
+        static::saving(function (Events $event): void {
+            if ($event->getAttribute('created_by') === null) {
+                $userId = Filament::auth()->id() ?? auth()->id();
+                if ($userId !== null) {
+                    $event->setAttribute('created_by', (int) $userId);
+                }
+            }
+        });
     }
 
     public function getBannerAttribute(): string

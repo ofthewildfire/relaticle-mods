@@ -51,6 +51,15 @@ final class Ideas extends Model
                 }
             }
         });
+
+        static::saving(function (Ideas $idea): void {
+            if ($idea->getAttribute('created_by') === null) {
+                $userId = Filament::auth()->id() ?? auth()->id();
+                if ($userId !== null) {
+                    $idea->setAttribute('created_by', (int) $userId);
+                }
+            }
+        });
     }
 
     /**
