@@ -28,12 +28,13 @@ class GuidelineComposer
      *
      * @var array<string, string[]>
      */
-    protected array $packagePriorities = [
-        Packages::PEST->value => [Packages::PHPUNIT->value],
-    ];
+    protected array $packagePriorities;
 
     public function __construct(protected Roster $roster, protected Herd $herd)
     {
+        $this->packagePriorities = [
+            Packages::PEST->value => [Packages::PHPUNIT->value],
+        ];
         $this->config = new GuidelineConfig;
         $this->guidelineAssist = new GuidelineAssist($roster);
     }
@@ -295,7 +296,8 @@ class GuidelineComposer
         }
 
         // The path is not a custom guideline, check if the user has an override for this
-        $relativePath = ltrim(str_replace([realpath(__DIR__.'/../../'), '.ai/'], '', $path), '/');
+        $basePath = realpath(__DIR__.'/../../');
+        $relativePath = ltrim(str_replace([$basePath, '.ai'.DIRECTORY_SEPARATOR, '.ai/'], '', $path), '/\\');
         $customPath = $this->prependUserGuidelinePath($relativePath);
 
         return file_exists($customPath) ? $customPath : $path;

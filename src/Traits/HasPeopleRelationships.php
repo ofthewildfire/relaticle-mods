@@ -27,4 +27,12 @@ trait HasPeopleRelationships
     {
         return $this->belongsToMany(Projects::class, 'project_team_members', 'people_id', 'projects_id');
     }
+
+    /**
+     * Get all ideas that this person is associated with
+     */
+    public function ideas(): BelongsToMany
+    {
+        return $this->belongsToMany(\Ofthewildfire\RelaticleModsPlugin\Models\Ideas::class, 'idea_people', 'people_id', 'idea_id');
+    }
 }
