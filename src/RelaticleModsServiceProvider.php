@@ -7,13 +7,14 @@ namespace Ofthewildfire\RelaticleModsPlugin;
 use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Support\ServiceProvider;
 use Ofthewildfire\RelaticleModsPlugin\Models\Events;
+use Ofthewildfire\RelaticleModsPlugin\Models\Ideas;
 use Ofthewildfire\RelaticleModsPlugin\Models\Projects;
 
 class RelaticleModsServiceProvider extends ServiceProvider
 {
     public function register(): void
     {
-        //
+        $this->mergeConfigFrom(__DIR__ . '/../config/relaticle-mods.php', 'relaticle-mods');
     }
 
     public function boot(): void
@@ -37,13 +38,10 @@ class RelaticleModsServiceProvider extends ServiceProvider
 
     protected function registerMorphMap(): void
     {
-        $existingMorphMap = Relation::$morphMap ?? [];
-        
-        $newMorphMap = array_merge($existingMorphMap, [
+        Relation::enforceMorphMap([
             'events' => Events::class,
+            'ideas' => Ideas::class,
             'projects' => Projects::class,
         ]);
-
-        Relation::enforceMorphMap($newMorphMap);
     }
 }

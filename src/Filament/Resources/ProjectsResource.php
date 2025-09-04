@@ -14,10 +14,13 @@ use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use Filament\Facades\Filament;
 
 class ProjectsResource extends Resource
 {
     protected static ?string $model = Projects::class;
+
+    protected static bool $isScopedToTenant = false;
 
     protected static ?string $navigationIcon = 'heroicon-o-briefcase';
 
@@ -148,9 +151,12 @@ class ProjectsResource extends Resource
 
     public static function getEloquentQuery(): Builder
     {
+        $teamId = Filament::getTenant()?->id ?? auth()->user()?->current_team_id ?? auth()->user()?->team_id;
+
         return parent::getEloquentQuery()
             ->withoutGlobalScopes([
                 SoftDeletingScope::class,
-            ]);
+            ])
+            ->when($teamId !== null, fn (Builder $query) => $query->where('team_id', $teamId));
     }
 }
