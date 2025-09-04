@@ -5,7 +5,8 @@
     "license": "MIT",
     "authors": [
         {
-            "name": "Ofthewildfire"
+            "name": "Ofthewildfire",
+            "email": "info@ofthewildfire.com"
         }
     ],
     "require": {
