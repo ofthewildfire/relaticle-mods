@@ -6,6 +6,7 @@ namespace Ofthewildfire\RelaticleModsPlugin;
 
 use Filament\Contracts\Plugin;
 use Filament\Panel;
+use Ofthewildfire\RelaticleModsPlugin\Filament\Resources\IdeasResource;
 use Ofthewildfire\RelaticleModsPlugin\Filament\Resources\EventsResource;
 use Ofthewildfire\RelaticleModsPlugin\Filament\Resources\ProjectsResource;
 
