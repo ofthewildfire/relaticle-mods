@@ -4,12 +4,9 @@ declare(strict_types=1);
 
 namespace Ofthewildfire\RelaticleModsPlugin\Models;
 
-use App\Enums\CreationSource;
 use App\Models\Concerns\HasCreator;
 use App\Models\Concerns\HasNotes;
 use App\Models\Concerns\HasTeam;
-use App\Models\People;
-use App\Services\AvatarService;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -61,7 +58,8 @@ final class Events extends Model implements HasCustomFields, HasMedia
      * @var array<string, mixed>
      */
     protected $attributes = [
-        'creation_source' => CreationSource::WEB,
+        // Default will be set in casts() if enum is available; keep string fallback
+        'creation_source' => 'web',
     ];
 
     /**
@@ -71,8 +69,10 @@ final class Events extends Model implements HasCustomFields, HasMedia
      */
     protected function casts(): array
     {
+        $creationSourceEnum = config('relaticle-mods.classes.creation_source_enum');
+
         return [
-            'creation_source' => CreationSource::class,
+            'creation_source' => is_string($creationSourceEnum) ? $creationSourceEnum : 'string',
             'start_date' => 'datetime',
             'end_date' => 'datetime',
         ];
@@ -82,7 +82,14 @@ final class Events extends Model implements HasCustomFields, HasMedia
     {
         $banner = $this->getFirstMediaUrl('banner');
 
-        return $banner === '' || $banner === '0' ? app(AvatarService::class)->generateAuto(name: $this->name) : $banner;
+        if ($banner !== '' && $banner !== '0') {
+            return $banner;
+        }
+
+        $avatarServiceClass = config('relaticle-mods.classes.avatar_service');
+        $avatarService = is_string($avatarServiceClass) ? app($avatarServiceClass) : null;
+
+        return $avatarService ? $avatarService->generateAuto(name: $this->name) : '';
     }
 
     /**
@@ -92,7 +99,9 @@ final class Events extends Model implements HasCustomFields, HasMedia
      */
     public function accountOwner(): BelongsTo
     {
-        return $this->belongsTo(\App\Models\User::class, 'account_owner_id');
+        $userClass = (string) config('relaticle-mods.classes.user');
+
+        return $this->belongsTo($userClass, 'account_owner_id');
     }
 
     /**
@@ -100,7 +109,9 @@ final class Events extends Model implements HasCustomFields, HasMedia
      */
     public function people(): BelongsToMany
     {
-        return $this->belongsToMany(People::class, 'event_people', 'event_id', 'people_id')
+        $peopleClass = (string) config('relaticle-mods.classes.people');
+
+        return $this->belongsToMany($peopleClass, 'event_people', 'event_id', 'people_id')
             ->withPivot('role')
             ->withTimestamps();
     }
@@ -110,7 +121,9 @@ final class Events extends Model implements HasCustomFields, HasMedia
      */
     public function opportunities(): HasMany
     {
-        return $this->hasMany(\App\Models\Opportunity::class);
+        $opportunityClass = (string) config('relaticle-mods.classes.opportunity');
+
+        return $this->hasMany($opportunityClass);
     }
 
     /**
@@ -118,7 +131,9 @@ final class Events extends Model implements HasCustomFields, HasMedia
      */
     public function tasks(): MorphToMany
     {
-        return $this->morphToMany(\App\Models\Task::class, 'taskable');
+        $taskClass = (string) config('relaticle-mods.classes.task');
+
+        return $this->morphToMany($taskClass, 'taskable');
     }
 
     /**
@@ -126,7 +141,9 @@ final class Events extends Model implements HasCustomFields, HasMedia
      */
     public function notes(): MorphToMany
     {
-        return $this->morphToMany(\App\Models\Note::class, 'noteable');
+        $noteClass = (string) config('relaticle-mods.classes.note');
+
+        return $this->morphToMany($noteClass, 'noteable');
     }
 
     /**

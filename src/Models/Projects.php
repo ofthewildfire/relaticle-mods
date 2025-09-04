@@ -66,7 +66,7 @@ class Projects extends Model
     protected $casts = [
         'project_name' => 'string',
         'description' => 'string',
-        'budget' => 'float',
+        'budget' => 'decimal:2',
         'start_date' => 'date',
         'end_date' => 'date',
         'status' => 'string',
@@ -76,32 +76,44 @@ class Projects extends Model
     
     public function company(): BelongsTo
     {
-        return $this->belongsTo(Company::class, 'company_id');
+        $companyClass = (string) config('relaticle-mods.classes.company');
+
+        return $this->belongsTo($companyClass, 'company_id');
     }
 
     public function manager(): BelongsTo
     {
-        return $this->belongsTo(User::class, 'manager_id');
+        $userClass = (string) config('relaticle-mods.classes.user');
+
+        return $this->belongsTo($userClass, 'manager_id');
     }
 
     public function tasks(): MorphToMany
     {
-        return $this->morphToMany(\App\Models\Task::class, 'taskable');
+        $taskClass = (string) config('relaticle-mods.classes.task');
+
+        return $this->morphToMany($taskClass, 'taskable');
     }
 
     public function notes(): MorphToMany
     {
-        return $this->morphToMany(\App\Models\Note::class, 'noteable');
+        $noteClass = (string) config('relaticle-mods.classes.note');
+
+        return $this->morphToMany($noteClass, 'noteable');
     }
 
     public function teamMembers(): BelongsToMany
     {
-        return $this->belongsToMany(People::class, 'project_team_members', 'projects_id', 'people_id');
+        $peopleClass = (string) config('relaticle-mods.classes.people');
+
+        return $this->belongsToMany($peopleClass, 'project_team_members', 'projects_id', 'people_id');
     }
 
     public function opportunities(): BelongsToMany
     {
-        return $this->belongsToMany(Opportunity::class, 'project_opportunities', 'projects_id', 'opportunity_id');
+        $opportunityClass = (string) config('relaticle-mods.classes.opportunity');
+
+        return $this->belongsToMany($opportunityClass, 'project_opportunities', 'projects_id', 'opportunity_id');
     }
 
     public function events(): BelongsToMany
