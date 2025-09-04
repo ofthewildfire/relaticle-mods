@@ -103,4 +103,16 @@ class Projects extends Model
         $class = config('relaticle-mods.classes.event', Events::class);
         return $this->belongsToMany($class, 'project_events', 'projects_id', 'event_id');
     }
+
+    public function tasks()
+    {
+        $taskClass = config('relaticle-mods.classes.task', \App\Models\Task::class);
+        return $this->morphToMany($taskClass, 'taskable', 'taskable', 'taskable_id', 'task_id');
+    }
+
+    public function notes()
+    {
+        $noteClass = config('relaticle-mods.classes.note', \App\Models\Note::class);
+        return $this->morphToMany($noteClass, 'noteable', 'noteable', 'noteable_id', 'note_id');
+    }
 }

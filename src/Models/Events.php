@@ -7,7 +7,7 @@ namespace Ofthewildfire\RelaticleModsPlugin\Models;
 use App\Models\Concerns\HasCreator;
 use App\Models\Concerns\HasNotes;
 use App\Models\Concerns\HasTeam;
-use App\Enums\CreationSource; 
+use App\Enums\CreationSource;
 use Filament\Facades\Filament;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -19,8 +19,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Carbon;
 use Relaticle\CustomFields\Models\Concerns\UsesCustomFields;
 use Relaticle\CustomFields\Models\Contracts\HasCustomFields;
-use Spatie\MediaLibrary\HasMedia;
-use Spatie\MediaLibrary\InteractsWithMedia;
+
 
 /**
  * @property string $name
@@ -43,13 +42,12 @@ use Spatie\MediaLibrary\InteractsWithMedia;
  * @property \Illuminate\Database\Eloquent\Collection<int, \App\Models\Note> $notes
  * @property \Illuminate\Database\Eloquent\Collection<int, Projects> $projects
  */
-final class Events extends Model implements HasCustomFields, HasMedia
+final class Events extends Model implements HasCustomFields
 {
     use HasFactory;
     use HasTeam;
     use HasCreator;
-    use HasNotes; 
-    use InteractsWithMedia;
+    use HasNotes;
     use SoftDeletes;
     use UsesCustomFields;
 
@@ -66,8 +64,8 @@ final class Events extends Model implements HasCustomFields, HasMedia
         'location',
         'creation_source',
         'account_owner_id',
-        'team_id', 
-        'created_by', 
+        'team_id',
+        'created_by',
     ];
 
     /**
@@ -120,11 +118,6 @@ final class Events extends Model implements HasCustomFields, HasMedia
 
     public function getBannerAttribute(): string
     {
-        $banner = $this->getFirstMediaUrl('banner');
-        if ($banner !== '' && $banner !== '0') {
-            return $banner;
-        }
-
         $avatarServiceClass = config('relaticle-mods.classes.avatar_service');
         $avatarService = is_string($avatarServiceClass) ? app($avatarServiceClass) : null;
 
@@ -144,6 +137,12 @@ final class Events extends Model implements HasCustomFields, HasMedia
     {
         $userClass = config('relaticle-mods.classes.user', \App\Models\User::class);
         return $this->belongsTo($userClass, 'account_owner_id');
+    }
+
+    public function notes(): MorphToMany
+    {
+        $noteClass = config('relaticle-mods.classes.note', \App\Models\Note::class);
+        return $this->morphToMany($noteClass, 'noteable', 'noteable', 'noteable_id', 'note_id');
     }
 
     /**
@@ -179,7 +178,7 @@ final class Events extends Model implements HasCustomFields, HasMedia
     public function tasks(): MorphToMany
     {
         $taskClass = config('relaticle-mods.classes.task', \App\Models\Task::class);
-        return $this->morphToMany($taskClass, 'taskable');
+        return $this->morphToMany($taskClass, 'taskable', 'taskable', 'taskable_id', 'task_id');
     }
 
     /**
