@@ -5,11 +5,9 @@ declare(strict_types=1);
 namespace Ofthewildfire\RelaticleModsPlugin;
 
 use Filament\Contracts\Plugin;
-use Filament\Facades\Filament;
 use Filament\Panel;
 use Ofthewildfire\RelaticleModsPlugin\Filament\Resources\EventsResource;
 use Ofthewildfire\RelaticleModsPlugin\Filament\Resources\ProjectsResource;
-use Ofthewildfire\RelaticleModsPlugin\Filament\Resources\IdeasResource;
 
 class RelaticleModsPlugin implements Plugin
 {
@@ -18,14 +16,13 @@ class RelaticleModsPlugin implements Plugin
         return 'relaticle-mods';
     }
 
-    public function register(Panel $panel): Panel
+    public function register(Panel $panel): void
     {
-        return $panel
-            ->resources([
-                EventsResource::class,
-                ProjectsResource::class,
-                IdeasResource::class,
-            ]);
+        $panel->resources([
+            EventsResource::class,
+            ProjectsResource::class,
+            IdeasResource::class,
+        ]);
     }
 
     public function boot(Panel $panel): void
@@ -40,11 +37,9 @@ class RelaticleModsPlugin implements Plugin
 
     public static function get(): static
     {
-        $panel = Filament::getCurrentPanel();
+        /** @var static $plugin */
+        $plugin = filament(app(static::class)->getId());
 
-        /** @var static|null $plugin */
-        $plugin = $panel?->getPlugin(static::make()->getId());
-
-        return $plugin ?? static::make();
+        return $plugin;
     }
 }
