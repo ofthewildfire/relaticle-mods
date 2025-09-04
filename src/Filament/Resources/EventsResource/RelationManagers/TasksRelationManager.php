@@ -4,43 +4,24 @@ declare(strict_types=1);
 
 namespace Ofthewildfire\RelaticleModsPlugin\Filament\Resources\EventsResource\RelationManagers;
 
-use Filament\Forms;
+use App\Filament\App\Resources\TaskResource\Forms\TaskForm;
 use Filament\Forms\Form;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Tables;
 use Filament\Tables\Table;
+use Relaticle\CustomFields\Filament\Tables\Columns\CustomFieldsColumn;
 
-class TasksRelationManager extends RelationManager
+final class TasksRelationManager extends RelationManager
 {
     protected static string $relationship = 'tasks';
 
+    protected static ?string $modelLabel = 'task';
+
+    protected static ?string $icon = 'heroicon-o-check-circle';
+
     public function form(Form $form): Form
     {
-        return $form
-            ->schema([
-                Forms\Components\TextInput::make('title')
-                    ->required()
-                    ->maxLength(255),
-                Forms\Components\Textarea::make('description')
-                    ->columnSpanFull(),
-                Forms\Components\DateTimePicker::make('due_date'),
-                Forms\Components\Select::make('priority')
-                    ->options([
-                        'low' => 'Low',
-                        'medium' => 'Medium',
-                        'high' => 'High',
-                        'urgent' => 'Urgent',
-                    ])
-                    ->default('medium'),
-                Forms\Components\Select::make('status')
-                    ->options([
-                        'pending' => 'Pending',
-                        'in_progress' => 'In Progress',
-                        'completed' => 'Completed',
-                        'cancelled' => 'Cancelled',
-                    ])
-                    ->default('pending'),
-            ]);
+        return TaskForm::get($form, ['events']);
     }
 
     public function table(Table $table): Table
@@ -48,29 +29,9 @@ class TasksRelationManager extends RelationManager
         return $table
             ->recordTitleAttribute('title')
             ->columns([
-                Tables\Columns\TextColumn::make('title')
-                    ->searchable()
-                    ->sortable(),
-                Tables\Columns\TextColumn::make('priority')
-                    ->badge()
-                    ->color(fn (string $state): string => match ($state) {
-                        'low' => 'gray',
-                        'medium' => 'warning',
-                        'high' => 'danger',
-                        'urgent' => 'danger',
-                    }),
-                Tables\Columns\TextColumn::make('status')
-                    ->badge()
-                    ->color(fn (string $state): string => match ($state) {
-                        'pending' => 'gray',
-                        'in_progress' => 'warning',
-                        'completed' => 'success',
-                        'cancelled' => 'danger',
-                    }),
-                Tables\Columns\TextColumn::make('due_date')
-                    ->dateTime()
-                    ->sortable(),
+                Tables\Columns\TextColumn::make('title'),
             ])
+            ->pushColumns(CustomFieldsColumn::forRelationManager($this))
             ->filters([
                 //
             ])
@@ -79,9 +40,11 @@ class TasksRelationManager extends RelationManager
                 Tables\Actions\AttachAction::make(),
             ])
             ->actions([
-                Tables\Actions\EditAction::make(),
-                Tables\Actions\DetachAction::make(),
-                Tables\Actions\DeleteAction::make(),
+                Tables\Actions\ActionGroup::make([
+                    Tables\Actions\EditAction::make(),
+                    Tables\Actions\DetachAction::make(),
+                    Tables\Actions\DeleteAction::make(),
+                ]),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([

@@ -4,9 +4,7 @@ declare(strict_types=1);
 
 namespace Ofthewildfire\RelaticleModsPlugin\Filament\Resources;
 
-use Ofthewildfire\RelaticleModsPlugin\Filament\Resources\EventsResource\RelationManagers;
-use Ofthewildfire\RelaticleModsPlugin\Filament\Resources\EventsResource\Pages;
-use Ofthewildfire\RelaticleModsPlugin\Models\Events;
+use Filament\Facades\Filament;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
@@ -14,24 +12,23 @@ use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
-use Filament\Facades\Filament;
-use Filament\Tables\Filters\SelectFilter;
+use Ofthewildfire\RelaticleModsPlugin\Filament\Resources\EventsResource\Pages;
+use Ofthewildfire\RelaticleModsPlugin\Filament\Resources\EventsResource\RelationManagers;
+use Ofthewildfire\RelaticleModsPlugin\Filament\Resources\EventsResource\RelationManagers\ProjectsRelationManager;
+use Ofthewildfire\RelaticleModsPlugin\Models\Events;
+use Relaticle\CustomFields\Filament\Forms\Components\CustomFieldsComponent;
 
 class EventsResource extends Resource
 {
     protected static ?string $model = Events::class;
 
-    protected static ?string $navigationLabel = 'Events';
+    protected static bool $isScopedToTenant = false;
 
     protected static ?string $navigationIcon = 'heroicon-o-calendar-days';
-
-    protected static ?string $recordTitleAttribute = 'name';
 
     protected static ?string $navigationGroup = 'Workspace';
 
     protected static ?int $navigationSort = 4;
-
-    protected static bool $isScopedToTenant = false;
 
     public static function form(Form $form): Form
     {
@@ -56,6 +53,7 @@ class EventsResource extends Resource
                 ->label('Event Owner')
                 ->searchable()
                 ->preload(),
+            CustomFieldsComponent::make()->columns(1),
         ]);
     }
 
@@ -111,7 +109,7 @@ class EventsResource extends Resource
                     ->label('Past')
                     ->query(fn (Builder $query) => $query->where('end_date', '<', now())),
 
-                SelectFilter::make('account_owner_id')
+                Tables\Filters\SelectFilter::make('account_owner_id')
                     ->label('Event Owner')
                     ->relationship('accountOwner', 'name')
                     ->searchable()
@@ -139,6 +137,7 @@ class EventsResource extends Resource
     {
         return [
             RelationManagers\PeopleRelationManager::class,
+            RelationManagers\ProjectsRelationManager::class,
             RelationManagers\TasksRelationManager::class,
             RelationManagers\NotesRelationManager::class,
         ];
@@ -156,11 +155,12 @@ class EventsResource extends Resource
 
     public static function getEloquentQuery(): Builder
     {
+        $teamId = Filament::getTenant()?->id ?? auth()->user()?->current_team_id ?? auth()->user()?->team_id;
+
         return parent::getEloquentQuery()
-            ->withoutGlobalScopes([SoftDeletingScope::class])
-            ->when(
-                Filament::getTenant()?->id ?? auth()->user()?->current_team_id ?? auth()->user()?->team_id,
-                fn (Builder $query, $teamId) => $query->where('team_id', $teamId)
-            );
+            ->withoutGlobalScopes([
+                SoftDeletingScope::class,
+            ])
+            ->when($teamId !== null, fn (Builder $query) => $query->where('team_id', $teamId));
     }
 }

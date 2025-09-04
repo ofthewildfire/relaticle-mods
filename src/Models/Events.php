@@ -82,10 +82,8 @@ final class Events extends Model implements HasCustomFields
      */
     protected function casts(): array
     {
-        $creationSourceEnum = config('relaticle-mods.classes.creation_source_enum');
-
         return [
-            'creation_source' => is_string($creationSourceEnum) ? $creationSourceEnum : 'string',
+            'creation_source' => 'string',
             'start_date' => 'datetime',
             'end_date' => 'datetime',
         ];
@@ -141,8 +139,7 @@ final class Events extends Model implements HasCustomFields
 
     public function notes(): MorphToMany
     {
-        $noteClass = config('relaticle-mods.classes.note', \App\Models\Note::class);
-        return $this->morphToMany($noteClass, 'noteable');
+        return $this->morphToMany(\App\Models\Note::class, 'noteable');
     }
 
     /**
@@ -152,9 +149,7 @@ final class Events extends Model implements HasCustomFields
      */
     public function people(): BelongsToMany
     {
-        $peopleClass = config('relaticle-mods.classes.people', \App\Models\People::class);
-
-        return $this->belongsToMany($peopleClass, 'event_people', 'event_id', 'people_id')
+        return $this->belongsToMany(\App\Models\People::class, 'event_people', 'event_id', 'people_id')
             ->withPivot('role')
             ->withTimestamps();
     }
@@ -177,8 +172,7 @@ final class Events extends Model implements HasCustomFields
      */
     public function tasks(): MorphToMany
     {
-        $taskClass = config('relaticle-mods.classes.task', \App\Models\Task::class);
-        return $this->morphToMany($taskClass, 'taskable');
+        return $this->morphToMany(\App\Models\Task::class, 'taskable');
     }
 
     /**
@@ -195,4 +189,5 @@ final class Events extends Model implements HasCustomFields
             'projects_id'
         );
     }
+
 }

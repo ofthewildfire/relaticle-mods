@@ -9,10 +9,16 @@ use Filament\Forms\Form;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Tables;
 use Filament\Tables\Table;
+use Relaticle\CustomFields\Filament\Forms\Components\CustomFieldsComponent;
+use Relaticle\CustomFields\Filament\Tables\Columns\CustomFieldsColumn;
 
-class ProjectsRelationManager extends RelationManager
+final class ProjectsRelationManager extends RelationManager
 {
     protected static string $relationship = 'projects';
+
+    protected static ?string $modelLabel = 'project';
+
+    protected static ?string $icon = 'heroicon-o-folder';
 
     public function form(Form $form): Form
     {
@@ -36,6 +42,9 @@ class ProjectsRelationManager extends RelationManager
                         'cancelled' => 'Cancelled',
                     ])
                     ->required(),
+                CustomFieldsComponent::make()
+                    ->columnSpanFull()
+                    ->columns(),
             ]);
     }
 
@@ -58,17 +67,24 @@ class ProjectsRelationManager extends RelationManager
                     ->date()
                     ->sortable(),
             ])
+            ->pushColumns(CustomFieldsColumn::forRelationManager($this))
             ->filters([
                 //
             ])
             ->headerActions([
-                Tables\Actions\CreateAction::make(),
+                Tables\Actions\CreateAction::make()
+                    ->mutateFormDataUsing(function (array $data): array {
+                        $data['team_id'] = \Filament\Facades\Filament::getTenant()?->id ?? auth()->user()?->current_team_id ?? auth()->user()?->team_id;
+                        return $data;
+                    }),
                 Tables\Actions\AttachAction::make(),
             ])
             ->actions([
-                Tables\Actions\EditAction::make(),
-                Tables\Actions\DetachAction::make(),
-                Tables\Actions\DeleteAction::make(),
+                Tables\Actions\ActionGroup::make([
+                    Tables\Actions\EditAction::make(),
+                    Tables\Actions\DetachAction::make(),
+                    Tables\Actions\DeleteAction::make(),
+                ]),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
@@ -78,5 +94,3 @@ class ProjectsRelationManager extends RelationManager
             ]);
     }
 }
-
-

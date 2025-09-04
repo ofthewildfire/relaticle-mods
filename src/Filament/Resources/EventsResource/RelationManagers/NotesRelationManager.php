@@ -4,42 +4,34 @@ declare(strict_types=1);
 
 namespace Ofthewildfire\RelaticleModsPlugin\Filament\Resources\EventsResource\RelationManagers;
 
-use Filament\Forms;
+use App\Filament\App\Resources\NoteResource\Forms\NoteForm;
 use Filament\Forms\Form;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Tables;
 use Filament\Tables\Table;
+use Relaticle\CustomFields\Filament\Tables\Columns\CustomFieldsColumn;
 
-class NotesRelationManager extends RelationManager
+final class NotesRelationManager extends RelationManager
 {
     protected static string $relationship = 'notes';
 
+    protected static ?string $modelLabel = 'note';
+
+    protected static ?string $icon = 'heroicon-o-document-text';
+
     public function form(Form $form): Form
     {
-        return $form
-            ->schema([
-                Forms\Components\RichEditor::make('content')
-                    ->required()
-                    ->columnSpanFull(),
-            ]);
+        return NoteForm::get($form, ['events']);
     }
 
     public function table(Table $table): Table
     {
         return $table
-            ->recordTitleAttribute('content')
+            ->recordTitleAttribute('title')
             ->columns([
-                Tables\Columns\TextColumn::make('content')
-                    ->html()
-                    ->limit(100)
-                    ->searchable(),
-                Tables\Columns\TextColumn::make('creator.name')
-                    ->label('Created By')
-                    ->sortable(),
-                Tables\Columns\TextColumn::make('created_at')
-                    ->dateTime()
-                    ->sortable(),
+                Tables\Columns\TextColumn::make('title'),
             ])
+            ->pushColumns(CustomFieldsColumn::forRelationManager($this))
             ->filters([
                 //
             ])
@@ -48,9 +40,11 @@ class NotesRelationManager extends RelationManager
                 Tables\Actions\AttachAction::make(),
             ])
             ->actions([
-                Tables\Actions\EditAction::make(),
-                Tables\Actions\DetachAction::make(),
-                Tables\Actions\DeleteAction::make(),
+                Tables\Actions\ActionGroup::make([
+                    Tables\Actions\EditAction::make(),
+                    Tables\Actions\DetachAction::make(),
+                    Tables\Actions\DeleteAction::make(),
+                ]),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([

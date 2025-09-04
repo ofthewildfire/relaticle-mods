@@ -16,6 +16,10 @@ use Filament\Infolists\Infolist;
 use Filament\Resources\Pages\ViewRecord;
 use Relaticle\CustomFields\Filament\Infolists\CustomFieldsInfolists;
 
+
+
+// Note for future: it is possible for a view to over-ride and that drove me nuts for 2hrs! 
+
 class ViewEvents extends ViewRecord
 {
     protected static string $resource = EventsResource::class;
@@ -34,76 +38,102 @@ class ViewEvents extends ViewRecord
     {
         return $infolist
             ->schema([
-                \Filament\Infolists\Components\Split::make([
-                    \Filament\Infolists\Components\Section::make([
-                        \Filament\Infolists\Components\Split::make([
+                Section::make('Event Overview')
+                    ->schema([
+                        Split::make([
                             AvatarName::make('banner')
                                 ->avatar('banner')
                                 ->name('name')
                                 ->avatarSize('lg')
-                                ->textSize('xl')
+                                ->textSize('2xl')
                                 ->square()
-                                ->label(''),
+                                ->label('')
+                                ->columnSpanFull(),
+                        ]),
 
-                            AvatarName::make('creator')
-                                ->avatar('creator.avatar')
-                                ->name('creator.name')
-                                ->avatarSize('sm')
-                                ->textSize('sm')
-                                ->circular()
-                                ->label('Created By'),
+                        Split::make([
+                            Section::make('Event Details')
+                                ->schema([
+                                    TextEntry::make('creation_source')
+                                        ->label('Source')
+                                        ->badge()
+                                        ->color(fn (string $state): string => match ($state) {
+                                            'manual' => 'gray',
+                                            'import' => 'info',
+                                            'api' => 'success',
+                                            'webhook' => 'warning',
+                                            default => 'gray',
+                                        })
+                                        ->icon('heroicon-o-arrow-down-tray'),
 
-                            AvatarName::make('accountOwner')
-                                ->avatar('accountOwner.avatar')
-                                ->name('accountOwner.name')
-                                ->avatarSize('sm')
-                                ->textSize('sm')
-                                ->circular()
-                                ->label('Account Owner'),
-                        ])->from('md'),
+                                    TextEntry::make('location')
+                                        ->label('Location')
+                                        ->icon('heroicon-o-map-pin')
+                                        ->placeholder('Not specified'),
 
-                        CustomFieldsInfolists::make(),
-                    ])->columnSpan(['md' => 8]),
+                                ])
+                                ->columns(2)
+                                ->columnSpan(['md' => 6]),
 
-                    \Filament\Infolists\Components\Section::make([
-                        \Filament\Infolists\Components\TextEntry::make('start_date')
-                            ->label('Start Date')
-                            ->icon('heroicon-o-calendar')
-                            ->dateTime(),
+                            Section::make('Timeline & Organizers')
+                                ->schema([
+                                    TextEntry::make('start_date')
+                                        ->label('Start Date')
+                                        ->icon('heroicon-o-calendar-days')
+                                        ->dateTime()
+                                        ->placeholder('Not set'),
 
-                        \Filament\Infolists\Components\TextEntry::make('end_date')
-                            ->label('End Date')
-                            ->icon('heroicon-o-calendar')
-                            ->dateTime(),
+                                    TextEntry::make('end_date')
+                                        ->label('End Date')
+                                        ->icon('heroicon-o-calendar-days')
+                                        ->dateTime()
+                                        ->placeholder('Not set'),
 
-                        \Filament\Infolists\Components\TextEntry::make('location')
-                            ->label('Location')
-                            ->icon('heroicon-o-map-pin'),
+                                    AvatarName::make('accountOwner')
+                                        ->avatar('accountOwner.avatar')
+                                        ->name('accountOwner.name')
+                                        ->avatarSize('sm')
+                                        ->textSize('sm')
+                                        ->circular()
+                                        ->label('Account Owner')
+                                        ->placeholder('Not assigned'),
+                                ])
+                                ->columns(2)
+                                ->columnSpan(['md' => 6]),
+                        ]),
 
-                        \Filament\Infolists\Components\TextEntry::make('created_at')
-                            ->label('Created')
-                            ->icon('heroicon-o-clock')
-                            ->dateTime(),
+                        Section::make('Description')
+                            ->schema([
+                                TextEntry::make('description')
+                                    ->label('')
+                                    ->placeholder('No description provided')
+                                    ->columnSpanFull(),
+                            ])
+                            ->collapsible()
+                            ->collapsed(false)
+                            ->columnSpanFull(),
 
-                        \Filament\Infolists\Components\TextEntry::make('updated_at')
-                            ->label('Last Updated')
-                            ->icon('heroicon-o-clock')
-                            ->dateTime(),
+                        CustomFieldsInfolists::make()
+                            ->columnSpanFull(),
+
+                        Split::make([
+                            TextEntry::make('created_at')
+                                ->label('Created')
+                                ->icon('heroicon-o-clock')
+                                ->dateTime()
+                                ->columnSpan(['md' => 6]),
+
+                            TextEntry::make('updated_at')
+                                ->label('Last Updated')
+                                ->icon('heroicon-o-clock')
+                                ->dateTime()
+                                ->columnSpan(['md' => 6]),
+                        ])
+                            ->columnSpanFull(),
                     ])
-                        ->grow(false)
-                        ->columnSpan(['md' => 4]),
-                ])
                     ->columns(1)
-                    ->columnSpan('full'),
+                    ->columnSpanFull(),
             ]);
     }
 
-    public function getRelationManagers(): array
-    {
-        return [
-            RelationManagers\PeopleRelationManager::class,
-            RelationManagers\TasksRelationManager::class,
-            RelationManagers\NotesRelationManager::class,
-        ];
-    }
 }

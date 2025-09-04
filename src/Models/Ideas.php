@@ -13,6 +13,8 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\MorphToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Relaticle\CustomFields\Models\Concerns\UsesCustomFields;
+use Relaticle\CustomFields\Models\Contracts\HasCustomFields;
 
 /**
  * @property string $content
@@ -28,13 +30,14 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property \Illuminate\Database\Eloquent\Collection<int, Projects> $projects
  * @property \Illuminate\Database\Eloquent\Collection<int, \App\Models\Note> $notes
  */
-final class Ideas extends Model
+final class Ideas extends Model implements HasCustomFields
 {
     use HasFactory;
     use HasTeam;
     use HasCreator;
     use HasNotes; 
     use SoftDeletes;
+    use UsesCustomFields;
 
     protected $table = 'ideas';
 
@@ -84,17 +87,6 @@ final class Ideas extends Model
     // Relationships
     // -----------------------------
 
-    /**
-     * Many-to-many polymorphic: Ideas can belong to multiple companies.
-     *
-     * @return MorphToMany<\App\Models\Company, $this>
-     */
-    public function companies(): MorphToMany
-    {
-        $companyClass = config('relaticle-mods.classes.company', \App\Models\Company::class);
-
-        return $this->morphedByMany($companyClass, 'ideaable', 'ideaables', 'idea_id', 'ideaable_id');
-    }
 
     /**
      * Direct many-to-many with People.
@@ -126,5 +118,25 @@ final class Ideas extends Model
             'idea_id',
             'projects_id'
         );
+    }
+
+    /**
+     * Tasks assigned to this idea (polymorphic)
+     *
+     * @return MorphToMany<\App\Models\Task, $this>
+     */
+    public function tasks(): MorphToMany
+    {
+        return $this->morphToMany(\App\Models\Task::class, 'taskable');
+    }
+
+    /**
+     * Notes attached to this idea (polymorphic)
+     *
+     * @return MorphToMany<\App\Models\Note, $this>
+     */
+    public function notes(): MorphToMany
+    {
+        return $this->morphToMany(\App\Models\Note::class, 'noteable');
     }
 }
