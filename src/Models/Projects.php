@@ -6,6 +6,7 @@ namespace Ofthewildfire\RelaticleModsPlugin\Models;
 
 use App\Models\Concerns\HasCreator;
 use App\Models\Concerns\HasTeam;
+use Filament\Facades\Filament;
 use App\Models\Company;
 use App\Models\Opportunity;
 use App\Models\People;
@@ -77,8 +78,11 @@ class Projects extends Model
     protected static function booted(): void
     {
         static::creating(function (Projects $project): void {
-            if ($project->getAttribute('created_by') === null && auth()->id() !== null) {
-                $project->setAttribute('created_by', (int) auth()->id());
+            if ($project->getAttribute('created_by') === null) {
+                $userId = Filament::auth()->id() ?? auth()->id();
+                if ($userId !== null) {
+                    $project->setAttribute('created_by', (int) $userId);
+                }
             }
         });
     }

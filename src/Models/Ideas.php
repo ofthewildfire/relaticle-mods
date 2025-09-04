@@ -6,6 +6,7 @@ namespace Ofthewildfire\RelaticleModsPlugin\Models;
 
 use App\Models\Concerns\HasCreator;
 use App\Models\Concerns\HasTeam;
+use Filament\Facades\Filament;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\MorphToMany;
@@ -43,8 +44,11 @@ final class Ideas extends Model
     protected static function booted(): void
     {
         static::creating(function (Ideas $idea): void {
-            if ($idea->getAttribute('created_by') === null && auth()->id() !== null) {
-                $idea->setAttribute('created_by', (int) auth()->id());
+            if ($idea->getAttribute('created_by') === null) {
+                $userId = Filament::auth()->id() ?? auth()->id();
+                if ($userId !== null) {
+                    $idea->setAttribute('created_by', (int) $userId);
+                }
             }
         });
     }
