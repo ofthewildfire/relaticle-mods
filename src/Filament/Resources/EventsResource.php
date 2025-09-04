@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Ofthewildfire\RelaticleModsPlugin\Filament\Resources;
 
-use App\Filament\App\Resources\CompanyResource\RelationManagers;
+use Ofthewildfire\RelaticleModsPlugin\Filament\Resources\EventsResource\RelationManagers;
 use Ofthewildfire\RelaticleModsPlugin\Filament\Resources\EventsResource\Pages;
 use Ofthewildfire\RelaticleModsPlugin\Models\Events;
 use Filament\Forms;
