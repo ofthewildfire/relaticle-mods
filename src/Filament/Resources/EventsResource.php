@@ -140,7 +140,6 @@ class EventsResource extends Resource
             RelationManagers\PeopleRelationManager::class,
             RelationManagers\TasksRelationManager::class,
             RelationManagers\NotesRelationManager::class,
-            RelationManagers\ProjectsRelationManager::class,
         ];
     }
 
