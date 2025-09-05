@@ -44,7 +44,6 @@ class ViewProjects extends ViewRecord
                         ]),
 
                         Split::make([
-                            // Left Column - Project Details
                             Section::make('Project Details')
                                 ->schema([
                                     TextEntry::make('status')
@@ -53,51 +52,29 @@ class ViewProjects extends ViewRecord
                                         ->color(fn (string $state): string => match ($state) {
                                             'planning' => 'gray',
                                             'active' => 'success',
-                                            'on-hold' => 'warning',
-                                            'completed' => 'info',
-                                            'archived' => 'secondary',
+                                            'on_hold' => 'warning',
+                                            'completed' => 'success',
+                                            'cancelled' => 'danger',
                                             default => 'gray',
                                         })
                                         ->icon('heroicon-o-flag'),
-
-                                    TextEntry::make('is_priority')
-                                        ->label('Priority')
-                                        ->icon('heroicon-o-star')
-                                        ->formatStateUsing(fn ($state) => $state ? 'High Priority' : 'Normal')
-                                        ->color(fn ($state) => $state ? 'danger' : 'secondary'),
-
-                                    TextEntry::make('budget')
-                                        ->label('Budget')
-                                        ->icon('heroicon-o-currency-dollar')
-                                        ->money('USD')
-                                        ->placeholder('Not set'),
-
                                 ])
                                 ->columns(2)
                                 ->columnSpan(['md' => 6]),
 
-                            Section::make('Timeline & Team')
+                            Section::make('Metadata')
                                 ->schema([
-                                    TextEntry::make('start_date')
-                                        ->label('Start Date')
-                                        ->icon('heroicon-o-calendar-days')
-                                        ->date()
-                                        ->placeholder('Not set'),
+                                    TextEntry::make('created_at')
+                                        ->label('Created')
+                                        ->icon('heroicon-o-clock')
+                                        ->dateTime()
+                                        ->columnSpan(['md' => 6]),
 
-                                    TextEntry::make('end_date')
-                                        ->label('End Date')
-                                        ->icon('heroicon-o-calendar-days')
-                                        ->date()
-                                        ->placeholder('Not set'),
-
-                                    AvatarName::make('manager')
-                                        ->avatar('manager.avatar')
-                                        ->name('manager.name')
-                                        ->avatarSize('sm')
-                                        ->textSize('sm')
-                                        ->circular()
-                                        ->label('Project Manager')
-                                        ->placeholder('Not assigned'),
+                                    TextEntry::make('updated_at')
+                                        ->label('Last Updated')
+                                        ->icon('heroicon-o-clock')
+                                        ->dateTime()
+                                        ->columnSpan(['md' => 6]),
                                 ])
                                 ->columns(2)
                                 ->columnSpan(['md' => 6]),
@@ -114,24 +91,7 @@ class ViewProjects extends ViewRecord
                             ->collapsed(false)
                             ->columnSpanFull(),
 
-                        // Custom Fields Section
                         CustomFieldsInfolists::make()
-                            ->columnSpanFull(),
-
-                        // Metadata Section
-                        Split::make([
-                            TextEntry::make('created_at')
-                                ->label('Created')
-                                ->icon('heroicon-o-clock')
-                                ->dateTime()
-                                ->columnSpan(['md' => 6]),
-
-                            TextEntry::make('updated_at')
-                                ->label('Last Updated')
-                                ->icon('heroicon-o-clock')
-                                ->dateTime()
-                                ->columnSpan(['md' => 6]),
-                        ])
                             ->columnSpanFull(),
                     ])
                     ->columns(1)
