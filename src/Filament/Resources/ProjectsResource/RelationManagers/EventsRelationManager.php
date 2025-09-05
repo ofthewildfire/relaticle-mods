@@ -27,13 +27,17 @@ final class EventsRelationManager extends RelationManager
                 Forms\Components\TextInput::make('name')
                     ->required()
                     ->maxLength(255),
+                Forms\Components\Select::make('status')
+                    ->options([
+                        'draft' => 'Draft',
+                        'published' => 'Published',
+                        'cancelled' => 'Cancelled',
+                        'completed' => 'Completed',
+                    ]),
+                Forms\Components\DateTimePicker::make('start_date'),
+                Forms\Components\DateTimePicker::make('end_date'),
                 Forms\Components\Textarea::make('description')
                     ->columnSpanFull(),
-                Forms\Components\DateTimePicker::make('start_date')
-                    ->required(),
-                Forms\Components\DateTimePicker::make('end_date'),
-                Forms\Components\TextInput::make('location')
-                    ->maxLength(255),
                 CustomFieldsComponent::make()
                     ->columnSpanFull()
                     ->columns(),
@@ -49,8 +53,8 @@ final class EventsRelationManager extends RelationManager
                     ->label('Event')
                     ->searchable()
                     ->sortable(),
-                Tables\Columns\TextColumn::make('location')
-                    ->searchable()
+                Tables\Columns\TextColumn::make('status')
+                    ->badge()
                     ->sortable(),
                 Tables\Columns\TextColumn::make('start_date')
                     ->dateTime()

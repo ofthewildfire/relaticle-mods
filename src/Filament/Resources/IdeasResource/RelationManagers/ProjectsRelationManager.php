@@ -28,11 +28,6 @@ final class ProjectsRelationManager extends RelationManager
                     ->label('Project Name')
                     ->required()
                     ->maxLength(255),
-                Forms\Components\Textarea::make('description')
-                    ->columnSpanFull(),
-                Forms\Components\DatePicker::make('start_date')
-                    ->required(),
-                Forms\Components\DatePicker::make('end_date'),
                 Forms\Components\Select::make('status')
                     ->options([
                         'planning' => 'Planning',
@@ -40,8 +35,9 @@ final class ProjectsRelationManager extends RelationManager
                         'on_hold' => 'On Hold',
                         'completed' => 'Completed',
                         'cancelled' => 'Cancelled',
-                    ])
-                    ->required(),
+                    ]),
+                Forms\Components\Textarea::make('description')
+                    ->columnSpanFull(),
                 CustomFieldsComponent::make()
                     ->columnSpanFull()
                     ->columns(),
@@ -59,12 +55,6 @@ final class ProjectsRelationManager extends RelationManager
                     ->sortable(),
                 Tables\Columns\TextColumn::make('status')
                     ->badge()
-                    ->sortable(),
-                Tables\Columns\TextColumn::make('start_date')
-                    ->date()
-                    ->sortable(),
-                Tables\Columns\TextColumn::make('end_date')
-                    ->date()
                     ->sortable(),
             ])
             ->pushColumns(CustomFieldsColumn::forRelationManager($this))

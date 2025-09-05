@@ -36,9 +36,7 @@ class ViewProjects extends ViewRecord
                 Section::make('Project Overview')
                     ->schema([
                         Split::make([
-                            AvatarName::make('project_name')
-                                ->name('project_name')
-                                ->textSize('2xl')
+                            TextEntry::make('project_name')
                                 ->label('')
                                 ->columnSpanFull(),
                         ]),

@@ -36,7 +36,6 @@ class ViewIdeas extends ViewRecord
                         Split::make([
                             TextEntry::make('idea_name')
                                 ->label('')
-                                ->textSize('2xl')
                                 ->columnSpanFull(),
                         ]),
 
