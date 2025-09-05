@@ -7,11 +7,9 @@ namespace Ofthewildfire\RelaticleModsPlugin\Models;
 use App\Models\Concerns\HasCreator;
 use App\Models\Concerns\HasNotes;
 use App\Models\Concerns\HasTeam;
-use App\Enums\CreationSource;
 use Filament\Facades\Filament;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\MorphToMany;
@@ -20,22 +18,18 @@ use Illuminate\Support\Carbon;
 use Relaticle\CustomFields\Models\Concerns\UsesCustomFields;
 use Relaticle\CustomFields\Models\Contracts\HasCustomFields;
 
-
 /**
  * @property string $name
  * @property string|null $description
- * @property Carbon $start_date
+ * @property Carbon|null $start_date
  * @property Carbon|null $end_date
- * @property string $location
+ * @property string|null $status
  * @property int|null $team_id
  * @property int|null $created_by
- * @property int|null $account_owner_id
- * @property CreationSource|string $creation_source
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  * @property Carbon|null $deleted_at
  *
- * @property \App\Models\User|null $accountOwner
  * @property \Illuminate\Database\Eloquent\Collection<int, \App\Models\People> $people
  * @property \Illuminate\Database\Eloquent\Collection<int, \App\Models\Opportunity> $opportunities
  * @property \Illuminate\Database\Eloquent\Collection<int, \App\Models\Task> $tasks
@@ -61,18 +55,9 @@ final class Events extends Model implements HasCustomFields
         'description',
         'start_date',
         'end_date',
-        'location',
-        'creation_source',
-        'account_owner_id',
+        'status',
         'team_id',
         'created_by',
-    ];
-
-    /**
-     * @var array<string, mixed>
-     */
-    protected $attributes = [
-        'creation_source' => 'web', // fallback
     ];
 
     /**
@@ -83,7 +68,6 @@ final class Events extends Model implements HasCustomFields
     protected function casts(): array
     {
         return [
-            'creation_source' => 'string',
             'start_date' => 'datetime',
             'end_date' => 'datetime',
         ];
@@ -126,17 +110,6 @@ final class Events extends Model implements HasCustomFields
     // Relationships
     // -----------------------------
 
-    /**
-     * Team member responsible for managing the event
-     *
-     * @return BelongsTo<\App\Models\User, $this>
-     */
-    public function accountOwner(): BelongsTo
-    {
-        $userClass = config('relaticle-mods.classes.user', \App\Models\User::class);
-        return $this->belongsTo($userClass, 'account_owner_id');
-    }
-
     public function notes(): MorphToMany
     {
         return $this->morphToMany(\App\Models\Note::class, 'noteable');
@@ -162,7 +135,7 @@ final class Events extends Model implements HasCustomFields
     public function opportunities(): HasMany
     {
         $opportunityClass = config('relaticle-mods.classes.opportunity', \App\Models\Opportunity::class);
-        return $this->hasMany($opportunityClass, 'event_id'); // adjust foreign key if needed
+        return $this->hasMany($opportunityClass, 'event_id');
     }
 
     /**
@@ -189,5 +162,4 @@ final class Events extends Model implements HasCustomFields
             'projects_id'
         );
     }
-
 }
