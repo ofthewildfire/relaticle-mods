@@ -2,12 +2,8 @@
 
 return [
     /*
-    |--------------------------------------------------------------------------
-    | Navigation Configuration
-    |--------------------------------------------------------------------------
-    |
-    | Configure how the resources appear in the Filament navigation
-    |
+    Navigation Configuration
+    Configure how the resources appear in the Filament navigation
     */
     'navigation' => [
         'events' => [
@@ -23,12 +19,8 @@ return [
     ],
 
     /*
-    |--------------------------------------------------------------------------
-    | Model Configuration
-    |--------------------------------------------------------------------------
-    |
-    | Configure the models used by the package
-    |
+    Model Configuration
+    Configure the models used by the package
     */
     'models' => [
         'events' => \Ofthewildfire\RelaticleModsPlugin\Models\Events::class,
@@ -37,13 +29,10 @@ return [
     ],
 
     /*
-    |--------------------------------------------------------------------------
-    | External Classes (host-app overrides)
-    |--------------------------------------------------------------------------
-    |
-    | Allow host applications to override concrete classes used by the plugin.
-    | Defaults target a typical Laravel app structure.
-    |
+    External Classes (host-app overrides)
+    -
+    Allow host applications to override concrete classes used by the plugin.
+    Defaults target a typical Laravel app structure.
     */
     'classes' => [
         'user' => \App\Models\User::class,
@@ -57,12 +46,7 @@ return [
     ],
 
     /*
-    |--------------------------------------------------------------------------
-    | Morph Map Configuration
-    |--------------------------------------------------------------------------
-    |
-    | Configure the morph map entries for polymorphic relationships
-    |
+    Morph Map Configuration
     */
     'morph_map' => [
         'events' => \Ofthewildfire\RelaticleModsPlugin\Models\Events::class,
