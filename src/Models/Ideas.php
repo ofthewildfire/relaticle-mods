@@ -17,8 +17,10 @@ use Relaticle\CustomFields\Models\Concerns\UsesCustomFields;
 use Relaticle\CustomFields\Models\Contracts\HasCustomFields;
 
 /**
- * @property string $content
- * @property string $creation_source
+ * @property string $idea_name
+ * @property string|null $content
+ * @property string|null $status
+ * @property \Illuminate\Support\Carbon|null $date
  * @property int|null $team_id
  * @property int|null $created_by
  * @property \Illuminate\Support\Carbon|null $created_at
@@ -45,8 +47,10 @@ final class Ideas extends Model implements HasCustomFields
      * @var list<string>
      */
     protected $fillable = [
+        'idea_name',
         'content',
-        'creation_source',
+        'status',
+        'date',
         'team_id', 
         'created_by', 
     ];
@@ -56,10 +60,8 @@ final class Ideas extends Model implements HasCustomFields
      */
     protected function casts(): array
     {
-        $creationSourceEnum = config('relaticle-mods.classes.creation_source_enum');
-
         return [
-            'creation_source' => is_string($creationSourceEnum) ? $creationSourceEnum : 'string',
+            'date' => 'date',
         ];
     }
 
@@ -86,7 +88,6 @@ final class Ideas extends Model implements HasCustomFields
     // -----------------------------
     // Relationships
     // -----------------------------
-
 
     /**
      * Direct many-to-many with People.

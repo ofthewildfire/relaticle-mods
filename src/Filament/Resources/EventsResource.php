@@ -30,61 +30,73 @@ class EventsResource extends Resource
 
     protected static ?int $navigationSort = 4;
 
+    // public static function form(Form $form): Form
+    // {
+    //     return $form->schema([
+    //         Forms\Components\TextInput::make('name')
+    //             ->required()
+    //             ->maxLength(255),
+
+    //         Forms\Components\Select::make('status')
+    //             ->options([
+    //                 'draft' => 'Draft',
+    //                 'published' => 'Published',
+    //                 'cancelled' => 'Cancelled',
+    //                 'completed' => 'Completed',
+    //             ]),
+
+    //         Forms\Components\DateTimePicker::make('start_date'),
+
+    //         Forms\Components\DateTimePicker::make('end_date'),
+
+    //         Forms\Components\Textarea::make('description')
+    //             ->columnSpanFull(),
+    //     ]);
+    // }
+
     public static function form(Form $form): Form
     {
         return $form->schema([
             Forms\Components\TextInput::make('name')
                 ->required()
                 ->maxLength(255),
-
+    
+            Forms\Components\Select::make('status')
+                ->options([
+                    'draft' => 'Draft',
+                    'published' => 'Published',
+                    'cancelled' => 'Cancelled',
+                    'completed' => 'Completed',
+                ]),
+    
+            Forms\Components\DateTimePicker::make('start_date'),
+    
+            Forms\Components\DateTimePicker::make('end_date'),
+    
             Forms\Components\Textarea::make('description')
                 ->columnSpanFull(),
-
-            Forms\Components\DateTimePicker::make('start_date')
-                ->required(),
-
-            Forms\Components\DateTimePicker::make('end_date'),
-
-            Forms\Components\TextInput::make('location')
-                ->maxLength(255),
-
-            Forms\Components\Select::make('account_owner_id')
-                ->relationship('accountOwner', 'name')
-                ->label('Event Owner')
-                ->searchable()
-                ->preload(),
+    
             CustomFieldsComponent::make()->columns(1),
         ]);
     }
+
 
     public static function table(Table $table): Table
     {
         return $table
             ->columns([
-                Tables\Columns\ImageColumn::make('banner')
-                    ->label('')
-                    ->size(40)
-                    ->square(),
-
                 Tables\Columns\TextColumn::make('name')
                     ->searchable()
                     ->sortable(),
-
-                Tables\Columns\TextColumn::make('location')
-                    ->searchable()
+                Tables\Columns\TextColumn::make('status')
+                    ->badge()
                     ->sortable(),
-
                 Tables\Columns\TextColumn::make('start_date')
                     ->dateTime()
                     ->sortable(),
 
                 Tables\Columns\TextColumn::make('end_date')
                     ->dateTime()
-                    ->sortable(),
-
-                Tables\Columns\TextColumn::make('accountOwner.name')
-                    ->label('Event Owner')
-                    ->searchable()
                     ->sortable(),
 
                 Tables\Columns\TextColumn::make('createdBy.name')
@@ -108,12 +120,6 @@ class EventsResource extends Resource
                 Tables\Filters\Filter::make('past')
                     ->label('Past')
                     ->query(fn (Builder $query) => $query->where('end_date', '<', now())),
-
-                Tables\Filters\SelectFilter::make('account_owner_id')
-                    ->label('Event Owner')
-                    ->relationship('accountOwner', 'name')
-                    ->searchable()
-                    ->preload(),
             ])
             ->groups([
                 Tables\Grouping\Group::make('start_date')

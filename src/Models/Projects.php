@@ -9,7 +9,6 @@ use App\Models\Concerns\HasTeam;
 use App\Models\Concerns\HasNotes;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Relaticle\CustomFields\Models\Concerns\UsesCustomFields;
@@ -18,21 +17,13 @@ use Relaticle\CustomFields\Models\Contracts\HasCustomFields;
 /**
  * @property string $project_name
  * @property string|null $description
- * @property float|null $budget
- * @property \Illuminate\Support\Carbon $start_date
- * @property \Illuminate\Support\Carbon|null $end_date
- * @property string $status
- * @property bool $is_priority
- * @property string|null $contact_email
- * @property int|null $company_id
- * @property int|null $manager_id
+ * @property string|null $status
  * @property int|null $team_id
+ * @property int|null $created_by
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property \Illuminate\Support\Carbon|null $deleted_at
  *
- * @property \App\Models\Company|null $company
- * @property \App\Models\User|null $manager
  * @property \Illuminate\Database\Eloquent\Collection<int, \App\Models\People> $teamMembers
  * @property \Illuminate\Database\Eloquent\Collection<int, \App\Models\Opportunity> $opportunities
  * @property \Illuminate\Database\Eloquent\Collection<int, Events> $events
@@ -52,42 +43,14 @@ class Projects extends Model implements HasCustomFields
     protected $fillable = [
         'project_name',
         'description',
-        'budget',
-        'start_date',
-        'end_date',
         'status',
-        'is_priority',
-        'contact_email',
-        'company_id',
-        'manager_id',
         'team_id',
+        'created_by',
     ];
-
-    protected function casts(): array
-    {
-        return [
-            'budget' => 'decimal:2',
-            'start_date' => 'date',
-            'end_date' => 'date',
-            'is_priority' => 'boolean',
-        ];
-    }
 
     // -----------------------------
     // Relationships
     // -----------------------------
-
-    public function company(): BelongsTo
-    {
-        $class = config('relaticle-mods.classes.company', \App\Models\Company::class);
-        return $this->belongsTo($class, 'company_id');
-    }
-
-    public function manager(): BelongsTo
-    {
-        $class = config('relaticle-mods.classes.user', \App\Models\User::class);
-        return $this->belongsTo($class, 'manager_id');
-    }
 
     public function teamMembers(): BelongsToMany
     {
@@ -140,7 +103,4 @@ class Projects extends Model implements HasCustomFields
             'idea_id'
         );
     }
-
-
-
 }

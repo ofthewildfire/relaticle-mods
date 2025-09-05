@@ -29,46 +29,70 @@ class ProjectsResource extends Resource
 
     protected static ?int $navigationSort = 5;
 
+    // public static function form(Form $form): Form
+    // {
+    //     return $form
+    //         ->schema([
+    //             Forms\Components\TextInput::make('project_name')
+    //                 ->required()
+    //                 ->maxLength(255),
+    //             Forms\Components\Textarea::make('description')
+    //                 ->columnSpanFull(),
+    //             Forms\Components\TextInput::make('budget')
+    //                 ->numeric()
+    //                 ->prefix('$'),
+    //             Forms\Components\DatePicker::make('start_date')
+    //                 ->required(),
+    //             Forms\Components\DatePicker::make('end_date'),
+    //             Forms\Components\Select::make('status')
+    //                 ->options([
+    //                     'planning' => 'Planning',
+    //                     'active' => 'Active',
+    //                     'on_hold' => 'On Hold',
+    //                     'completed' => 'Completed',
+    //                     'cancelled' => 'Cancelled',
+    //                 ])
+    //                 ->required(),
+    //             Forms\Components\Toggle::make('is_priority')
+    //                 ->label('Priority Project'),
+    //             Forms\Components\TextInput::make('contact_email')
+    //                 ->email()
+    //                 ->maxLength(255),
+    //             Forms\Components\Select::make('company_id')
+    //                 ->relationship('company', 'name')
+    //                 ->searchable()
+    //                 ->preload(),
+    //             Forms\Components\Select::make('manager_id')
+    //                 ->relationship('manager', 'name')
+    //                 ->searchable()
+    //                 ->preload(),
+    //             CustomFieldsComponent::make()->columns(1),
+    //         ]);
+    // }
+
     public static function form(Form $form): Form
     {
-        return $form
-            ->schema([
-                Forms\Components\TextInput::make('project_name')
-                    ->required()
-                    ->maxLength(255),
-                Forms\Components\Textarea::make('description')
-                    ->columnSpanFull(),
-                Forms\Components\TextInput::make('budget')
-                    ->numeric()
-                    ->prefix('$'),
-                Forms\Components\DatePicker::make('start_date')
-                    ->required(),
-                Forms\Components\DatePicker::make('end_date'),
-                Forms\Components\Select::make('status')
-                    ->options([
-                        'planning' => 'Planning',
-                        'active' => 'Active',
-                        'on_hold' => 'On Hold',
-                        'completed' => 'Completed',
-                        'cancelled' => 'Cancelled',
-                    ])
-                    ->required(),
-                Forms\Components\Toggle::make('is_priority')
-                    ->label('Priority Project'),
-                Forms\Components\TextInput::make('contact_email')
-                    ->email()
-                    ->maxLength(255),
-                Forms\Components\Select::make('company_id')
-                    ->relationship('company', 'name')
-                    ->searchable()
-                    ->preload(),
-                Forms\Components\Select::make('manager_id')
-                    ->relationship('manager', 'name')
-                    ->searchable()
-                    ->preload(),
-                CustomFieldsComponent::make()->columns(1),
-            ]);
+        return $form->schema([
+            Forms\Components\TextInput::make('project_name')
+                ->required()
+                ->maxLength(255),
+    
+            Forms\Components\Select::make('status')
+                ->options([
+                    'planning' => 'Planning',
+                    'active' => 'Active',
+                    'on_hold' => 'On Hold',
+                    'completed' => 'Completed',
+                    'cancelled' => 'Cancelled',
+                ]),
+    
+            Forms\Components\Textarea::make('description')
+                ->columnSpanFull(),
+    
+            CustomFieldsComponent::make()->columns(1),
+        ]);
     }
+
 
     public static function table(Table $table): Table
     {
@@ -86,24 +110,6 @@ class ProjectsResource extends Resource
                         'completed' => 'success',
                         'cancelled' => 'danger',
                     }),
-                Tables\Columns\TextColumn::make('budget')
-                    ->money('USD')
-                    ->sortable(),
-                Tables\Columns\TextColumn::make('start_date')
-                    ->date()
-                    ->sortable(),
-                Tables\Columns\TextColumn::make('end_date')
-                    ->date()
-                    ->sortable(),
-                Tables\Columns\IconColumn::make('is_priority')
-                    ->boolean()
-                    ->label('Priority'),
-                Tables\Columns\TextColumn::make('company.name')
-                    ->searchable()
-                    ->sortable(),
-                Tables\Columns\TextColumn::make('manager.name')
-                    ->searchable()
-                    ->sortable(),
             ])
             ->filters([
                 Tables\Filters\TrashedFilter::make(),
@@ -115,8 +121,6 @@ class ProjectsResource extends Resource
                         'completed' => 'Completed',
                         'cancelled' => 'Cancelled',
                     ]),
-                Tables\Filters\TernaryFilter::make('is_priority')
-                    ->label('Priority Projects'),
             ])
             ->actions([
                 Tables\Actions\ViewAction::make(),

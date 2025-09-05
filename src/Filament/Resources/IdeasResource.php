@@ -29,27 +29,63 @@ class IdeasResource extends Resource
 
     protected static ?int $navigationSort = 6;
 
+    // public static function form(Form $form): Form
+    // {
+    //     return $form
+    //         ->schema([
+    //             Forms\Components\Textarea::make('content')
+    //                 ->label('Idea')
+    //                 ->rows(8)
+    //                 ->required()
+    //                 ->columnSpanFull(),
+    //             CustomFieldsComponent::make()->columns(1),
+    //         ]);
+    // }
+
+
     public static function form(Form $form): Form
-    {
-        return $form
-            ->schema([
-                Forms\Components\Textarea::make('content')
-                    ->label('Idea')
-                    ->rows(8)
-                    ->required()
-                    ->columnSpanFull(),
-                CustomFieldsComponent::make()->columns(1),
-            ]);
-    }
+{
+    return $form->schema([
+        Forms\Components\TextInput::make('idea_name')
+            ->required()
+            ->maxLength(255),
+
+        Forms\Components\Select::make('status')
+            ->options([
+                'draft' => 'Draft',
+                'active' => 'Active',
+                'completed' => 'Completed',
+                'cancelled' => 'Cancelled',
+            ]),
+
+        Forms\Components\DatePicker::make('date'),
+
+        Forms\Components\Textarea::make('content')
+            ->label('Description')
+            ->columnSpanFull(),
+
+        CustomFieldsComponent::make()->columns(1),
+    ]);
+}
 
     public static function table(Table $table): Table
     {
         return $table
             ->columns([
-                Tables\Columns\TextColumn::make('content')
+                Tables\Columns\TextColumn::make('idea_name')
                     ->limit(100)
                     ->wrap()
                     ->searchable(),
+                Tables\Columns\TextColumn::make('status')
+                    ->badge()
+                    ->sortable(),
+                Tables\Columns\TextColumn::make('date')
+                    ->date()
+                    ->sortable(),
+                Tables\Columns\TextColumn::make('created_at')
+                    ->dateTime()
+                    ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: true),
                 Tables\Columns\TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable(),
