@@ -89,7 +89,7 @@ class ProjectsResource extends Resource
             Forms\Components\Textarea::make('description')
                 ->columnSpanFull(),
     
-            CustomFieldsComponent::make()->columns(1),
+            CustomFieldsComponent::make()->columnSpanFull(),
         ]);
     }
 

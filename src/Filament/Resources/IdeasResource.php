@@ -64,7 +64,7 @@ class IdeasResource extends Resource
             ->label('Description')
             ->columnSpanFull(),
 
-        CustomFieldsComponent::make()->columns(1),
+        CustomFieldsComponent::make()->columnSpanFull(),
     ]);
 }
 
@@ -86,9 +86,6 @@ class IdeasResource extends Resource
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
-                Tables\Columns\TextColumn::make('created_at')
-                    ->dateTime()
-                    ->sortable(),
             ])
             ->filters([
                 Tables\Filters\TrashedFilter::make(),
