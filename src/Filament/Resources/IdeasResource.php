@@ -28,20 +28,8 @@ class IdeasResource extends Resource
     protected static ?string $navigationGroup = 'Workspace';
 
     protected static ?int $navigationSort = 6;
-
-    // public static function form(Form $form): Form
-    // {
-    //     return $form
-    //         ->schema([
-    //             Forms\Components\Textarea::make('content')
-    //                 ->label('Idea')
-    //                 ->rows(8)
-    //                 ->required()
-    //                 ->columnSpanFull(),
-    //             CustomFieldsComponent::make()->columns(1),
-    //         ]);
-    // }
-
+    
+    protected static ?string $recordTitleAttribute = 'idea_name';
 
     public static function form(Form $form): Form
 {

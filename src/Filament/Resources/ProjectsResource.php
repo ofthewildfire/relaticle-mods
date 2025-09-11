@@ -29,46 +29,7 @@ class ProjectsResource extends Resource
 
     protected static ?int $navigationSort = 5;
 
-    // public static function form(Form $form): Form
-    // {
-    //     return $form
-    //         ->schema([
-    //             Forms\Components\TextInput::make('project_name')
-    //                 ->required()
-    //                 ->maxLength(255),
-    //             Forms\Components\Textarea::make('description')
-    //                 ->columnSpanFull(),
-    //             Forms\Components\TextInput::make('budget')
-    //                 ->numeric()
-    //                 ->prefix('$'),
-    //             Forms\Components\DatePicker::make('start_date')
-    //                 ->required(),
-    //             Forms\Components\DatePicker::make('end_date'),
-    //             Forms\Components\Select::make('status')
-    //                 ->options([
-    //                     'planning' => 'Planning',
-    //                     'active' => 'Active',
-    //                     'on_hold' => 'On Hold',
-    //                     'completed' => 'Completed',
-    //                     'cancelled' => 'Cancelled',
-    //                 ])
-    //                 ->required(),
-    //             Forms\Components\Toggle::make('is_priority')
-    //                 ->label('Priority Project'),
-    //             Forms\Components\TextInput::make('contact_email')
-    //                 ->email()
-    //                 ->maxLength(255),
-    //             Forms\Components\Select::make('company_id')
-    //                 ->relationship('company', 'name')
-    //                 ->searchable()
-    //                 ->preload(),
-    //             Forms\Components\Select::make('manager_id')
-    //                 ->relationship('manager', 'name')
-    //                 ->searchable()
-    //                 ->preload(),
-    //             CustomFieldsComponent::make()->columns(1),
-    //         ]);
-    // }
+    protected static ?string $recordTitleAttribute = 'project_name';
 
     public static function form(Form $form): Form
     {

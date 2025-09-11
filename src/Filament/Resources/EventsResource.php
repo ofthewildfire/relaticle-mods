@@ -30,29 +30,7 @@ class EventsResource extends Resource
 
     protected static ?int $navigationSort = 4;
 
-    // public static function form(Form $form): Form
-    // {
-    //     return $form->schema([
-    //         Forms\Components\TextInput::make('name')
-    //             ->required()
-    //             ->maxLength(255),
-
-    //         Forms\Components\Select::make('status')
-    //             ->options([
-    //                 'draft' => 'Draft',
-    //                 'published' => 'Published',
-    //                 'cancelled' => 'Cancelled',
-    //                 'completed' => 'Completed',
-    //             ]),
-
-    //         Forms\Components\DateTimePicker::make('start_date'),
-
-    //         Forms\Components\DateTimePicker::make('end_date'),
-
-    //         Forms\Components\Textarea::make('description')
-    //             ->columnSpanFull(),
-    //     ]);
-    // }
+    protected static ?string $recordTitleAttribute = 'name';
 
     public static function form(Form $form): Form
     {
