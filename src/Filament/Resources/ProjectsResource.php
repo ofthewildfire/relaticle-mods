@@ -16,6 +16,7 @@ use Ofthewildfire\RelaticleModsPlugin\Filament\Resources\ProjectsResource\Pages;
 use Ofthewildfire\RelaticleModsPlugin\Filament\Resources\ProjectsResource\RelationManagers;
 use Ofthewildfire\RelaticleModsPlugin\Models\Projects;
 use Relaticle\CustomFields\Filament\Forms\Components\CustomFieldsComponent;
+use Relaticle\CustomFields\Filament\Tables\Columns\CustomFieldsColumn;
 
 class ProjectsResource extends Resource
 {
@@ -60,9 +61,11 @@ class ProjectsResource extends Resource
         return $table
             ->columns([
                 Tables\Columns\TextColumn::make('project_name')
+                    ->label('Project Name')
                     ->searchable()
                     ->sortable(),
                 Tables\Columns\TextColumn::make('status')
+                    ->label('Status')
                     ->badge()
                     ->color(fn(string $state): string => match ($state) {
                         'planning' => 'gray',
@@ -70,7 +73,27 @@ class ProjectsResource extends Resource
                         'on_hold' => 'warning',
                         'completed' => 'success',
                         'cancelled' => 'danger',
-                    }),
+                    })
+                    ->sortable(),
+                Tables\Columns\TextColumn::make('description')
+                    ->label('Description')
+                    ->limit(50)
+                    ->wrap()
+                    ->searchable()
+                    ->toggleable(),
+                Tables\Columns\TextColumn::make('created_at')
+                    ->label('Created')
+                    ->dateTime()
+                    ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: true),
+                Tables\Columns\TextColumn::make('updated_at')
+                    ->label('Updated')
+                    ->dateTime()
+                    ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: true),
+                CustomFieldsColumn::make()
+                    ->label('Custom Fields')
+                    ->toggleable(),
             ])
             ->filters([
                 Tables\Filters\TrashedFilter::make(),
@@ -93,7 +116,13 @@ class ProjectsResource extends Resource
                     Tables\Actions\ForceDeleteBulkAction::make(),
                     Tables\Actions\RestoreBulkAction::make(),
                 ]),
-            ]);
+            ])
+            ->defaultPaginationPageOption(25)
+            ->persistFiltersInSession()
+            ->persistSortInSession()
+            ->persistSearchInSession()
+            ->persistColumnSearchesInSession()
+            ->persistTableStateInSession();
     }
 
     public static function getRelations(): array

@@ -16,6 +16,7 @@ use Ofthewildfire\RelaticleModsPlugin\Filament\Resources\IdeasResource\Pages;
 use Ofthewildfire\RelaticleModsPlugin\Filament\Resources\IdeasResource\RelationManagers;
 use Ofthewildfire\RelaticleModsPlugin\Models\Ideas;
 use Relaticle\CustomFields\Filament\Forms\Components\CustomFieldsComponent;
+use Relaticle\CustomFields\Filament\Tables\Columns\CustomFieldsColumn;
 
 class IdeasResource extends Resource
 {
@@ -61,19 +62,38 @@ class IdeasResource extends Resource
         return $table
             ->columns([
                 Tables\Columns\TextColumn::make('idea_name')
+                    ->label('Idea Name')
                     ->limit(100)
                     ->wrap()
-                    ->searchable(),
+                    ->searchable()
+                    ->sortable(),
                 Tables\Columns\TextColumn::make('status')
+                    ->label('Status')
                     ->badge()
                     ->sortable(),
                 Tables\Columns\TextColumn::make('date')
+                    ->label('Date')
                     ->date()
                     ->sortable(),
+                Tables\Columns\TextColumn::make('content')
+                    ->label('Description')
+                    ->limit(50)
+                    ->wrap()
+                    ->searchable()
+                    ->toggleable(),
                 Tables\Columns\TextColumn::make('created_at')
+                    ->label('Created')
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
+                Tables\Columns\TextColumn::make('updated_at')
+                    ->label('Updated')
+                    ->dateTime()
+                    ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: true),
+                CustomFieldsColumn::make()
+                    ->label('Custom Fields')
+                    ->toggleable(),
             ])
             ->filters([
                 Tables\Filters\TrashedFilter::make(),
@@ -88,7 +108,13 @@ class IdeasResource extends Resource
                     Tables\Actions\ForceDeleteBulkAction::make(),
                     Tables\Actions\RestoreBulkAction::make(),
                 ]),
-            ]);
+            ])
+            ->defaultPaginationPageOption(25)
+            ->persistFiltersInSession()
+            ->persistSortInSession()
+            ->persistSearchInSession()
+            ->persistColumnSearchesInSession()
+            ->persistTableStateInSession();
     }
 
     public static function getRelations(): array

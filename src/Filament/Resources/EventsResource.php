@@ -17,6 +17,7 @@ use Ofthewildfire\RelaticleModsPlugin\Filament\Resources\EventsResource\Relation
 use Ofthewildfire\RelaticleModsPlugin\Filament\Resources\EventsResource\RelationManagers\ProjectsRelationManager;
 use Ofthewildfire\RelaticleModsPlugin\Models\Events;
 use Relaticle\CustomFields\Filament\Forms\Components\CustomFieldsComponent;
+use Relaticle\CustomFields\Filament\Tables\Columns\CustomFieldsColumn;
 
 class EventsResource extends Resource
 {
@@ -64,28 +65,44 @@ class EventsResource extends Resource
         return $table
             ->columns([
                 Tables\Columns\TextColumn::make('name')
+                    ->label('Event Name')
                     ->searchable()
                     ->sortable(),
                 Tables\Columns\TextColumn::make('status')
+                    ->label('Status')
                     ->badge()
                     ->sortable(),
                 Tables\Columns\TextColumn::make('start_date')
+                    ->label('Start Date')
                     ->dateTime()
                     ->sortable(),
-
                 Tables\Columns\TextColumn::make('end_date')
+                    ->label('End Date')
                     ->dateTime()
                     ->sortable(),
-
+                Tables\Columns\TextColumn::make('description')
+                    ->label('Description')
+                    ->limit(50)
+                    ->wrap()
+                    ->searchable()
+                    ->toggleable(),
                 Tables\Columns\TextColumn::make('createdBy.name')
                     ->label('Created By')
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
-
                 Tables\Columns\TextColumn::make('created_at')
+                    ->label('Created')
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
+                Tables\Columns\TextColumn::make('updated_at')
+                    ->label('Updated')
+                    ->dateTime()
+                    ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: true),
+                CustomFieldsColumn::make()
+                    ->label('Custom Fields')
+                    ->toggleable(),
             ])
             ->defaultSort('start_date', 'desc')
             ->filters([
@@ -114,7 +131,13 @@ class EventsResource extends Resource
                     Tables\Actions\ForceDeleteBulkAction::make(),
                     Tables\Actions\RestoreBulkAction::make(),
                 ]),
-            ]);
+            ])
+            ->defaultPaginationPageOption(25)
+            ->persistFiltersInSession()
+            ->persistSortInSession()
+            ->persistSearchInSession()
+            ->persistColumnSearchesInSession()
+            ->persistTableStateInSession();
     }
 
     public static function getRelations(): array
