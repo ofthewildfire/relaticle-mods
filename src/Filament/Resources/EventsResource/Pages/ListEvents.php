@@ -7,9 +7,12 @@ namespace Ofthewildfire\RelaticleModsPlugin\Filament\Resources\EventsResource\Pa
 use Ofthewildfire\RelaticleModsPlugin\Filament\Resources\EventsResource;
 use Filament\Actions;
 use Filament\Resources\Pages\ListRecords;
+use Relaticle\CustomFields\Filament\Tables\Concerns\InteractsWithCustomFields;
 
 class ListEvents extends ListRecords
 {
+    use InteractsWithCustomFields;
+    
     protected static string $resource = EventsResource::class;
 
     protected function getHeaderActions(): array

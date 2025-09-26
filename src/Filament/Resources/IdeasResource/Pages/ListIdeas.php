@@ -7,9 +7,12 @@ namespace Ofthewildfire\RelaticleModsPlugin\Filament\Resources\IdeasResource\Pag
 use Filament\Actions;
 use Filament\Resources\Pages\ListRecords;
 use Ofthewildfire\RelaticleModsPlugin\Filament\Resources\IdeasResource;
+use Relaticle\CustomFields\Filament\Tables\Concerns\InteractsWithCustomFields;
 
 class ListIdeas extends ListRecords
 {
+    use InteractsWithCustomFields;
+    
     protected static string $resource = IdeasResource::class;
 
     protected function getHeaderActions(): array

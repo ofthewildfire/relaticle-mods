@@ -90,7 +90,7 @@ class ProjectsResource extends Resource
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
-                CustomFieldsColumn::make(),
+                // CustomFieldsColumn::make(),
             ])
             ->filters([
                 Tables\Filters\TrashedFilter::make(),
