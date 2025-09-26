@@ -86,7 +86,6 @@ class ProjectsResource extends Resource
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
-            ->pushColumns(CustomFieldsColumn::forResource(static::class))
             ->filters([
                 Tables\Filters\TrashedFilter::make(),
                 Tables\Filters\SelectFilter::make('status')

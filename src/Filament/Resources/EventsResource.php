@@ -95,7 +95,6 @@ class EventsResource extends Resource
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
-            ->pushColumns(CustomFieldsColumn::forResource(static::class))
             ->defaultSort('start_date', 'desc')
             ->filters([
                 Tables\Filters\TrashedFilter::make(),
