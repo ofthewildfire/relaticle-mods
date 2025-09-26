@@ -99,6 +99,7 @@ class EventsResource extends Resource
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
+                CustomFieldsColumn::make(),
             ])
             ->defaultSort('start_date', 'desc')
             ->filters([
