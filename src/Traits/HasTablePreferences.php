@@ -26,11 +26,6 @@ trait HasTablePreferences
             return $table;
         }
 
-        // Apply column visibility preferences
-        if (isset($preferences['visible_columns'])) {
-            $table = $this->applyColumnVisibility($table, $preferences['visible_columns']);
-        }
-
         // Apply sort preferences
         if (isset($preferences['sort'])) {
             $table = $this->applySortPreferences($table, $preferences['sort']);
@@ -41,16 +36,6 @@ trait HasTablePreferences
             $table = $this->applyFilterPreferences($table, $preferences['filters']);
         }
 
-        return $table;
-    }
-
-    /**
-     * Apply column visibility preferences
-     */
-    private function applyColumnVisibility(Table $table, array $visibleColumns): Table
-    {
-        // This would need to be implemented based on how Filament handles column visibility
-        // For now, we'll return the table as-is
         return $table;
     }
 
@@ -88,5 +73,37 @@ trait HasTablePreferences
         }
 
         UserTablePreferences::savePreferences($userId, $resourceName, $preferences);
+    }
+
+    /**
+     * Capture current table state and save to database
+     */
+    protected function captureAndSaveTableState(string $resourceName): void
+    {
+        $userId = auth()->id();
+        
+        if (!$userId) {
+            return;
+        }
+
+        // Get current request parameters that represent table state
+        $request = request();
+        
+        $preferences = [
+            'sort' => [
+                'column' => $request->get('sort'),
+                'direction' => $request->get('direction', 'asc'),
+            ],
+            'filters' => $request->get('filters', []),
+            'search' => $request->get('search'),
+            'timestamp' => now()->toISOString(),
+        ];
+
+        // Remove empty values
+        $preferences = array_filter($preferences, function($value) {
+            return !empty($value);
+        });
+
+        $this->saveTablePreferences($resourceName, $preferences);
     }
 }

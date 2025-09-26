@@ -60,6 +60,9 @@ class ProjectsResource extends Resource
 
     public static function table(Table $table): Table
     {
+        // Capture current state and save to database
+        static::captureAndSaveTableState('projects');
+        
         $table = $table
             ->columns([
                 Tables\Columns\TextColumn::make('project_name')
@@ -110,9 +113,12 @@ class ProjectsResource extends Resource
                     Tables\Actions\RestoreBulkAction::make(),
                 ]),
             ])
-            ->defaultPaginationPageOption(25);
+            ->defaultPaginationPageOption(25)
+            ->persistFiltersInSession()
+            ->persistSortInSession()
+            ->persistSearchInSession();
 
-        // Apply user preferences
+        // Apply saved preferences
         return static::applyTablePreferences($table, 'projects');
     }
 
