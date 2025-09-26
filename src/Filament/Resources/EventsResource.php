@@ -80,12 +80,6 @@ class EventsResource extends Resource
                     ->label('End Date')
                     ->dateTime()
                     ->sortable(),
-                Tables\Columns\TextColumn::make('description')
-                    ->label('Description')
-                    ->limit(50)
-                    ->wrap()
-                    ->searchable()
-                    ->toggleable(),
                 Tables\Columns\TextColumn::make('createdBy.name')
                     ->label('Created By')
                     ->sortable()

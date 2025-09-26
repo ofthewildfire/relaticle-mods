@@ -75,12 +75,6 @@ class ProjectsResource extends Resource
                         'cancelled' => 'danger',
                     })
                     ->sortable(),
-                Tables\Columns\TextColumn::make('description')
-                    ->label('Description')
-                    ->limit(50)
-                    ->wrap()
-                    ->searchable()
-                    ->toggleable(),
                 Tables\Columns\TextColumn::make('created_at')
                     ->label('Created')
                     ->dateTime()
