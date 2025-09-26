@@ -15,11 +15,13 @@ use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Ofthewildfire\RelaticleModsPlugin\Filament\Resources\IdeasResource\Pages;
 use Ofthewildfire\RelaticleModsPlugin\Filament\Resources\IdeasResource\RelationManagers;
 use Ofthewildfire\RelaticleModsPlugin\Models\Ideas;
+use Ofthewildfire\RelaticleModsPlugin\Traits\HasTablePreferences;
 use Relaticle\CustomFields\Filament\Forms\Components\CustomFieldsComponent;
 use Relaticle\CustomFields\Filament\Tables\Columns\CustomFieldsColumn;
 
 class IdeasResource extends Resource
 {
+    use HasTablePreferences;
     protected static ?string $model = Ideas::class;
 
     protected static bool $isScopedToTenant = false;
@@ -59,7 +61,7 @@ class IdeasResource extends Resource
 
     public static function table(Table $table): Table
     {
-        return $table
+        $table = $table
             ->columns([
                 Tables\Columns\TextColumn::make('idea_name')
                     ->label('Idea Name')
@@ -106,12 +108,10 @@ class IdeasResource extends Resource
                     Tables\Actions\RestoreBulkAction::make(),
                 ]),
             ])
-            ->defaultPaginationPageOption(25)
-            ->persistFiltersInSession()
-            ->persistSortInSession()
-            ->persistSearchInSession()
-            ->persistColumnSearchesInSession()
-            ->persistTableStateInSession();
+            ->defaultPaginationPageOption(25);
+
+        // Apply user preferences
+        return static::applyTablePreferences($table, 'ideas');
     }
 
     public static function getRelations(): array

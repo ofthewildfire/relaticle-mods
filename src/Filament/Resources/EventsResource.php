@@ -16,11 +16,13 @@ use Ofthewildfire\RelaticleModsPlugin\Filament\Resources\EventsResource\Pages;
 use Ofthewildfire\RelaticleModsPlugin\Filament\Resources\EventsResource\RelationManagers;
 use Ofthewildfire\RelaticleModsPlugin\Filament\Resources\EventsResource\RelationManagers\ProjectsRelationManager;
 use Ofthewildfire\RelaticleModsPlugin\Models\Events;
+use Ofthewildfire\RelaticleModsPlugin\Traits\HasTablePreferences;
 use Relaticle\CustomFields\Filament\Forms\Components\CustomFieldsComponent;
 use Relaticle\CustomFields\Filament\Tables\Columns\CustomFieldsColumn;
 
 class EventsResource extends Resource
 {
+    use HasTablePreferences;
     protected static ?string $model = Events::class;
 
     protected static bool $isScopedToTenant = false;
@@ -62,7 +64,7 @@ class EventsResource extends Resource
 
     public static function table(Table $table): Table
     {
-        return $table
+        $table = $table
             ->columns([
                 Tables\Columns\TextColumn::make('name')
                     ->label('Event Name')
@@ -123,12 +125,10 @@ class EventsResource extends Resource
                     Tables\Actions\RestoreBulkAction::make(),
                 ]),
             ])
-            ->defaultPaginationPageOption(25)
-            ->persistFiltersInSession()
-            ->persistSortInSession()
-            ->persistSearchInSession()
-            ->persistColumnSearchesInSession()
-            ->persistTableStateInSession();
+            ->defaultPaginationPageOption(25);
+
+        // Apply user preferences
+        return static::applyTablePreferences($table, 'events');
     }
 
     public static function getRelations(): array

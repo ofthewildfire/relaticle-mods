@@ -15,11 +15,13 @@ use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Ofthewildfire\RelaticleModsPlugin\Filament\Resources\ProjectsResource\Pages;
 use Ofthewildfire\RelaticleModsPlugin\Filament\Resources\ProjectsResource\RelationManagers;
 use Ofthewildfire\RelaticleModsPlugin\Models\Projects;
+use Ofthewildfire\RelaticleModsPlugin\Traits\HasTablePreferences;
 use Relaticle\CustomFields\Filament\Forms\Components\CustomFieldsComponent;
 use Relaticle\CustomFields\Filament\Tables\Columns\CustomFieldsColumn;
 
 class ProjectsResource extends Resource
 {
+    use HasTablePreferences;
     protected static ?string $model = Projects::class;
 
     protected static bool $isScopedToTenant = false;
@@ -58,7 +60,7 @@ class ProjectsResource extends Resource
 
     public static function table(Table $table): Table
     {
-        return $table
+        $table = $table
             ->columns([
                 Tables\Columns\TextColumn::make('project_name')
                     ->label('Project Name')
@@ -108,12 +110,10 @@ class ProjectsResource extends Resource
                     Tables\Actions\RestoreBulkAction::make(),
                 ]),
             ])
-            ->defaultPaginationPageOption(25)
-            ->persistFiltersInSession()
-            ->persistSortInSession()
-            ->persistSearchInSession()
-            ->persistColumnSearchesInSession()
-            ->persistTableStateInSession();
+            ->defaultPaginationPageOption(25);
+
+        // Apply user preferences
+        return static::applyTablePreferences($table, 'projects');
     }
 
     public static function getRelations(): array
