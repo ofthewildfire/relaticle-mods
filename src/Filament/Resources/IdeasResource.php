@@ -91,10 +91,8 @@ class IdeasResource extends Resource
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
-                CustomFieldsColumn::make()
-                    ->label('Custom Fields')
-                    ->toggleable(),
             ])
+            ->pushColumns(CustomFieldsColumn::forResource(static::class))
             ->filters([
                 Tables\Filters\TrashedFilter::make(),
             ])
