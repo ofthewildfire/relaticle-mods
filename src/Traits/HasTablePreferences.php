@@ -12,7 +12,7 @@ trait HasTablePreferences
     /**
      * Apply user's saved table preferences to the table
      */
-    protected function applyTablePreferences(Table $table, string $resourceName): Table
+    protected static function applyTablePreferences(Table $table, string $resourceName): Table
     {
         $userId = auth()->id();
         
@@ -28,12 +28,12 @@ trait HasTablePreferences
 
         // Apply sort preferences
         if (isset($preferences['sort'])) {
-            $table = $this->applySortPreferences($table, $preferences['sort']);
+            $table = static::applySortPreferences($table, $preferences['sort']);
         }
 
         // Apply filter preferences
         if (isset($preferences['filters'])) {
-            $table = $this->applyFilterPreferences($table, $preferences['filters']);
+            $table = static::applyFilterPreferences($table, $preferences['filters']);
         }
 
         return $table;
@@ -42,7 +42,7 @@ trait HasTablePreferences
     /**
      * Apply sort preferences
      */
-    private function applySortPreferences(Table $table, array $sort): Table
+    private static function applySortPreferences(Table $table, array $sort): Table
     {
         if (isset($sort['column']) && isset($sort['direction'])) {
             $table->defaultSort($sort['column'], $sort['direction']);
@@ -54,7 +54,7 @@ trait HasTablePreferences
     /**
      * Apply filter preferences
      */
-    private function applyFilterPreferences(Table $table, array $filters): Table
+    private static function applyFilterPreferences(Table $table, array $filters): Table
     {
         // This would need to be implemented based on how Filament handles filters
         // For now, we'll return the table as-is
