@@ -64,7 +64,7 @@ trait HasTablePreferences
     /**
      * Save current table state as preferences
      */
-    protected function saveTablePreferences(string $resourceName, array $preferences): void
+    protected static function saveTablePreferences(string $resourceName, array $preferences): void
     {
         $userId = auth()->id();
         
@@ -78,7 +78,7 @@ trait HasTablePreferences
     /**
      * Capture current table state and save to database
      */
-    protected function captureAndSaveTableState(string $resourceName): void
+    protected static function captureAndSaveTableState(string $resourceName): void
     {
         $userId = auth()->id();
         
@@ -104,6 +104,6 @@ trait HasTablePreferences
             return !empty($value);
         });
 
-        $this->saveTablePreferences($resourceName, $preferences);
+        static::saveTablePreferences($resourceName, $preferences);
     }
 }
