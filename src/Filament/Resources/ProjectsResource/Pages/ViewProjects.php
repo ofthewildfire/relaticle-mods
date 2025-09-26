@@ -78,16 +78,16 @@ class ViewProjects extends ViewRecord
                                 ->columnSpan(['md' => 6]),
                         ]),
 
-                        Section::make('Description')
-                            ->schema([
-                                TextEntry::make('description')
-                                    ->label('')
-                                    ->placeholder('No description provided')
-                                    ->columnSpanFull(),
-                            ])
-                            ->collapsible()
-                            ->collapsed(false)
-                            ->columnSpanFull(),
+                        // Section::make('Description')
+                        //     ->schema([
+                        //         TextEntry::make('description')
+                        //             ->label('')
+                        //             ->placeholder('No description provided')
+                        //             ->columnSpanFull(),
+                        //     ])
+                        //     ->collapsible()
+                        //     ->collapsed(false)
+                        //     ->columnSpanFull(),
 
                         CustomFieldsInfolists::make()
                             ->columnSpanFull(),

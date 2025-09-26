@@ -50,8 +50,8 @@ class ProjectsResource extends Resource
                     'cancelled' => 'Cancelled',
                 ]),
     
-            Forms\Components\Textarea::make('description')
-                ->columnSpanFull(),
+            // Forms\Components\Textarea::make('description')
+            //     ->columnSpanFull(),
     
             CustomFieldsComponent::make()->columnSpanFull(),
         ]);

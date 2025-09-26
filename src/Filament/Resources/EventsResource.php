@@ -54,8 +54,8 @@ class EventsResource extends Resource
     
             Forms\Components\DateTimePicker::make('end_date'),
     
-            Forms\Components\Textarea::make('description')
-                ->columnSpanFull(),
+            // Forms\Components\Textarea::make('description')
+            //     ->columnSpanFull(),
     
             CustomFieldsComponent::make()->columnSpanFull(),
         ]);
