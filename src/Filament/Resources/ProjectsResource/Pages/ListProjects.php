@@ -17,35 +17,35 @@ class ListProjects extends ListRecords
     
     protected static string $resource = ProjectsResource::class;
 
-    protected $listeners = [
-        'updateColumnToggles' => 'handleColumnToggles',
-    ];
-
     protected function getHeaderActions(): array
     {
         return [
             Actions\CreateAction::make(),
+            Actions\Action::make('savePreferences')
+                ->label('Save Column Preferences')
+                ->icon('heroicon-o-bookmark')
+                ->color('gray')
+                ->action(function () {
+                    $this->saveCurrentColumnPreferences();
+                })
+                ->requiresConfirmation()
+                ->modalHeading('Save Column Preferences')
+                ->modalDescription('This will save your current column visibility settings for this table.')
+                ->modalSubmitActionLabel('Save'),
         ];
     }
 
-    public function mount(): void
+    public function saveCurrentColumnPreferences(): void
     {
-        parent::mount();
+        // Get the current hidden columns from Livewire state
+        $hiddenColumns = $this->getCurrentlyHiddenColumns();
         
-        // Sync any existing session column preferences to database
-        $this->syncColumnPreferencesToDatabase('projects');
-    }
-
-    public function updatedTableColumnSearches($value = null, ?string $key = null): void
-    {
-        parent::updatedTableColumnSearches($value, $key);
+        $this->saveColumnVisibility('projects', $hiddenColumns);
         
-        // Sync column preferences to database when they change
-        $this->syncColumnPreferencesToDatabase('projects');
-    }
-
-    public function handleColumnToggles($toggledColumns): void
-    {
-        $this->saveColumnToggleState('projects', $toggledColumns);
+        $this->notify(
+            title: 'Preferences Saved',
+            body: 'Your column preferences have been saved successfully.',
+            color: 'success'
+        );
     }
 }
