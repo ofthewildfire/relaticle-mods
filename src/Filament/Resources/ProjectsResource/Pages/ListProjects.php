@@ -17,6 +17,10 @@ class ListProjects extends ListRecords
     
     protected static string $resource = ProjectsResource::class;
 
+    protected $listeners = [
+        'updateColumnToggles' => 'handleColumnToggles',
+    ];
+
     protected function getHeaderActions(): array
     {
         return [
@@ -38,5 +42,10 @@ class ListProjects extends ListRecords
         
         // Sync column preferences to database when they change
         $this->syncColumnPreferencesToDatabase('projects');
+    }
+
+    public function handleColumnToggles($toggledColumns): void
+    {
+        $this->saveColumnToggleState('projects', $toggledColumns);
     }
 }

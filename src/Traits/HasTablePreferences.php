@@ -110,7 +110,7 @@ trait HasTablePreferences
     /**
      * Save column toggle state to preferences
      */
-    protected static function saveColumnToggleState(string $resourceName, array $toggledColumns): void
+    protected function saveColumnToggleState(string $resourceName, array $toggledColumns): void
     {
         $userId = auth()->id();
         
@@ -131,7 +131,7 @@ trait HasTablePreferences
     /**
      * Save column toggle preferences using Filament's session data
      */
-    public static function syncColumnPreferencesToDatabase(string $resourceName): void
+    public function syncColumnPreferencesToDatabase(string $resourceName): void
     {
         $userId = auth()->id();
         
@@ -144,7 +144,8 @@ trait HasTablePreferences
         $toggledColumns = session()->get($sessionKey, []);
         
         $toggledColumns = session()->get($sessionKey);
-        static::saveColumnToggleState($resourceName, $toggledColumns ?? []);    }
+        $this->saveColumnToggleState($resourceName, $toggledColumns ?? []);
+    }
 
     /**
      * Get the table session key for a resource
@@ -185,10 +186,9 @@ trait HasTablePreferences
         $table = static::applyTablePreferences($table, $resourceName);
         
         // Enable Filament's built-in persistence for future changes
-        $table->persistTableColumnSearchInSession()
-              ->persistTableFiltersInSession()
-              ->persistTableSortInSession()
-              ->persistTableColumnTogglesInSession();
+        $table->persistFiltersInSession()
+              ->persistSortInSession()
+              ->persistSearchInSession();
 
         return $table;
     }

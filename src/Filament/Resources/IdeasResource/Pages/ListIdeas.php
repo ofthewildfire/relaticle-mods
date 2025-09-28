@@ -29,7 +29,7 @@ class ListIdeas extends ListRecords
         parent::mount();
         
         // Sync any existing session column preferences to database
-        static::syncColumnPreferencesToDatabase('ideas');
+        $this->syncColumnPreferencesToDatabase('ideas');
     }
 
     public function updatedTableColumnSearches($value = null, ?string $key = null): void
@@ -37,7 +37,7 @@ class ListIdeas extends ListRecords
         parent::updatedTableColumnSearches($value, $key);
         
         // Sync column preferences to database when they change
-        static::syncColumnPreferencesToDatabase('ideas');
+        $this->syncColumnPreferencesToDatabase('ideas');
     }
 }
 
