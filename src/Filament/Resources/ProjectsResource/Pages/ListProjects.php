@@ -32,9 +32,9 @@ class ListProjects extends ListRecords
         $this->syncColumnPreferencesToDatabase('projects');
     }
 
-    public function updatedTableColumnSearches(): void
+    public function updatedTableColumnSearches($value = null, ?string $key = null): void
     {
-        parent::updatedTableColumnSearches();
+        parent::updatedTableColumnSearches($value, $key);
         
         // Sync column preferences to database when they change
         $this->syncColumnPreferencesToDatabase('projects');
