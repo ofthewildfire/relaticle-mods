@@ -7,6 +7,7 @@ namespace Ofthewildfire\RelaticleModsPlugin\Filament\Resources\ProjectsResource\
 use Ofthewildfire\RelaticleModsPlugin\Filament\Resources\ProjectsResource;
 use Ofthewildfire\RelaticleModsPlugin\Traits\HasTablePreferences;
 use Filament\Actions;
+use Filament\Notifications\Notification;
 use Filament\Resources\Pages\ListRecords;
 use Relaticle\CustomFields\Filament\Tables\Concerns\InteractsWithCustomFields;
 
@@ -42,10 +43,10 @@ class ListProjects extends ListRecords
         
         $this->saveColumnVisibility('projects', $hiddenColumns);
         
-        $this->notify(
-            title: 'Preferences Saved',
-            body: 'Your column preferences have been saved successfully.',
-            color: 'success'
-        );
+        Notification::make()
+            ->title('Preferences Saved')
+            ->body('Your column preferences have been saved successfully.')
+            ->success()
+            ->send();
     }
 }

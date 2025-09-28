@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Ofthewildfire\RelaticleModsPlugin\Filament\Resources\IdeasResource\Pages;
 
 use Filament\Actions;
+use Filament\Notifications\Notification;
 use Filament\Resources\Pages\ListRecords;
 use Ofthewildfire\RelaticleModsPlugin\Filament\Resources\IdeasResource;
 use Ofthewildfire\RelaticleModsPlugin\Traits\HasTablePreferences;
@@ -41,11 +42,11 @@ class ListIdeas extends ListRecords
         
         $this->saveColumnVisibility('ideas', $hiddenColumns);
         
-        $this->notify(
-            title: 'Preferences Saved',
-            body: 'Your column preferences have been saved successfully.',
-            color: 'success'
-        );
+        Notification::make()
+            ->title('Preferences Saved')
+            ->body('Your column preferences have been saved successfully.')
+            ->success()
+            ->send();
     }
 }
 
