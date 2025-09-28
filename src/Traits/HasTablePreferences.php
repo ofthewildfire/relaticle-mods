@@ -81,6 +81,7 @@ trait HasTablePreferences
         $userId = auth()->id();
         
         if (!$userId) {
+            \Log::info('saveColumnVisibility: No user ID');
             return;
         }
 
@@ -90,6 +91,13 @@ trait HasTablePreferences
         // Update the hidden columns
         $existingPreferences['hidden_columns'] = $hiddenColumns;
         $existingPreferences['updated_at'] = now()->toISOString();
+
+        \Log::info('saveColumnVisibility', [
+            'user_id' => $userId,
+            'resource' => $resourceName,
+            'hidden_columns' => $hiddenColumns,
+            'existing_preferences' => $existingPreferences
+        ]);
 
         UserTablePreferences::savePreferences($userId, $resourceName, $existingPreferences);
     }
@@ -126,6 +134,13 @@ trait HasTablePreferences
                 }
             }
         }
+        
+        // Log for debugging
+        \Log::info('getCurrentlyHiddenColumns', [
+            'has_property' => property_exists($this, 'toggledTableColumns'),
+            'toggledTableColumns' => property_exists($this, 'toggledTableColumns') ? $this->toggledTableColumns : 'not found',
+            'hiddenColumns' => $hiddenColumns
+        ]);
         
         return $hiddenColumns;
     }
