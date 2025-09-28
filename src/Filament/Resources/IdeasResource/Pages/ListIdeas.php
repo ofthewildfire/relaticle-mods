@@ -7,11 +7,13 @@ namespace Ofthewildfire\RelaticleModsPlugin\Filament\Resources\IdeasResource\Pag
 use Filament\Actions;
 use Filament\Resources\Pages\ListRecords;
 use Ofthewildfire\RelaticleModsPlugin\Filament\Resources\IdeasResource;
+use Ofthewildfire\RelaticleModsPlugin\Traits\HasTablePreferences;
 use Relaticle\CustomFields\Filament\Tables\Concerns\InteractsWithCustomFields;
 
 class ListIdeas extends ListRecords
 {
     use InteractsWithCustomFields;
+    use HasTablePreferences;
     
     protected static string $resource = IdeasResource::class;
 
@@ -20,6 +22,22 @@ class ListIdeas extends ListRecords
         return [
             Actions\CreateAction::make(),
         ];
+    }
+
+    public function mount(): void
+    {
+        parent::mount();
+        
+        // Sync any existing session column preferences to database
+        static::syncColumnPreferencesToDatabase('ideas');
+    }
+
+    public function updatedTableColumnSearches(): void
+    {
+        parent::updatedTableColumnSearches();
+        
+        // Sync column preferences to database when they change
+        static::syncColumnPreferencesToDatabase('ideas');
     }
 }
 

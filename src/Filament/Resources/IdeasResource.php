@@ -61,9 +61,6 @@ class IdeasResource extends Resource
 
     public static function table(Table $table): Table
     {
-        // Capture current state and save to database
-        static::captureAndSaveTableState('ideas');
-        
         $table = $table
             ->columns([
                 Tables\Columns\TextColumn::make('idea_name')
@@ -112,13 +109,10 @@ class IdeasResource extends Resource
                     Tables\Actions\RestoreBulkAction::make(),
                 ]),
             ])
-            ->defaultPaginationPageOption(25)
-            ->persistFiltersInSession()
-            ->persistSortInSession()
-            ->persistSearchInSession();
+            ->defaultPaginationPageOption(25);
 
-        // Apply saved preferences
-        return static::applyTablePreferences($table, 'ideas');
+        // Apply persistence and preferences
+        return static::getTableWithPersistence($table, 'ideas');
     }
 
     public static function getRelations(): array
