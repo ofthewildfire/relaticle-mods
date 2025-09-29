@@ -17,26 +17,17 @@ trait HasTablePreferences
         $userId = auth()->id();
         
         if (!$userId) {
-            \Log::info('applyTablePreferences: No user ID');
             return $table;
         }
 
         $preferences = UserTablePreferences::getPreferences($userId, $resourceName);
         
-        \Log::info('applyTablePreferences', [
-            'user_id' => $userId,
-            'resource_name' => $resourceName,
-            'preferences' => $preferences
-        ]);
-        
         if (empty($preferences)) {
-            \Log::info('applyTablePreferences: No preferences found');
             return $table;
         }
 
         // Apply column visibility preferences
         if (isset($preferences['visible_columns'])) {
-            \Log::info('applyTablePreferences: Applying visible columns', $preferences['visible_columns']);
             $table = static::applyColumnVisibilityPreferences($table, $preferences['visible_columns']);
         }
 
@@ -56,11 +47,6 @@ trait HasTablePreferences
         // Apply the saved column visibility states to each column
         $columns = $table->getColumns();
         
-        \Log::info('applyColumnVisibilityPreferences', [
-            'saved_visible_columns' => $visibleColumns,
-            'table_columns' => array_map(fn($col) => $col->getName(), $columns)
-        ]);
-        
         foreach ($columns as $column) {
             $columnName = $column->getName();
             
@@ -69,10 +55,8 @@ trait HasTablePreferences
                 // Set the default hidden state - if column is in visible list, show it
                 if (in_array($columnName, $visibleColumns)) {
                     $column->toggledHiddenByDefault(false); // Show the column
-                    \Log::info("Showing column: {$columnName}");
                 } else {
                     $column->toggledHiddenByDefault(true);  // Hide the column
-                    \Log::info("Hiding column: {$columnName}");
                 }
             }
         }
@@ -100,7 +84,6 @@ trait HasTablePreferences
         $userId = auth()->id();
         
         if (!$userId) {
-            \Log::info('saveColumnVisibility: No user ID');
             return;
         }
 
@@ -110,13 +93,6 @@ trait HasTablePreferences
         // Update the visible columns
         $existingPreferences['visible_columns'] = $visibleColumns;
         $existingPreferences['updated_at'] = now()->toISOString();
-
-        \Log::info('saveColumnVisibility', [
-            'user_id' => $userId,
-            'resource' => $resourceName,
-            'visible_columns' => $visibleColumns,
-            'existing_preferences' => $existingPreferences
-        ]);
 
         UserTablePreferences::savePreferences($userId, $resourceName, $existingPreferences);
     }
@@ -148,11 +124,6 @@ trait HasTablePreferences
         $visibleColumns = $table->getVisibleColumns();
         $visibleColumnNames = array_map(fn($col) => $col->getName(), $visibleColumns);
         
-        // Log for debugging
-        \Log::info('getCurrentlyVisibleColumns', [
-            'visible_columns' => $visibleColumnNames
-        ]);
-        
         return $visibleColumnNames;
     }
 
@@ -167,7 +138,8 @@ trait HasTablePreferences
         // Enable Filament's built-in persistence for filters, sort, and search
         $table->persistFiltersInSession()
               ->persistSortInSession()
-              ->persistSearchInSession();
+              ->persistSearchInSession()
+              ->persistColumnSearchesInSession();
 
         return $table;
     }
