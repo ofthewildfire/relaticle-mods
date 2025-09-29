@@ -113,8 +113,10 @@ class ProjectsResource extends Resource
             ])
             ->defaultPaginationPageOption(25);
 
-        // Apply persistence and preferences
-        return static::getTableWithPersistence($table, 'projects');
+        // Apply persistence and preferences AFTER all columns are set up
+        $table = static::getTableWithPersistence($table, 'projects');
+        
+        return $table;
     }
 
     public static function getRelations(): array

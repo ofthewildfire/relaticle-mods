@@ -18,7 +18,31 @@ class ListIdeas extends ListRecords
     
     protected static string $resource = IdeasResource::class;
 
-    // Rely on the Resource's table() + HasTablePreferences to apply saved defaults.
+    public function getTable(): \Filament\Tables\Table
+    {
+        $table = parent::getTable();
+        
+        // Apply saved preferences AFTER custom fields have been added
+        $savedColumns = static::getSavedColumnVisibility('ideas');
+        
+        if (!empty($savedColumns)) {
+            $columns = $table->getColumns();
+            
+            foreach ($columns as $column) {
+                $columnName = $column->getName();
+                
+                if ($column->isToggleable()) {
+                    if (in_array($columnName, $savedColumns)) {
+                        $column->toggledHiddenByDefault(false); // Show
+                    } else {
+                        $column->toggledHiddenByDefault(true);  // Hide
+                    }
+                }
+            }
+        }
+        
+        return $table;
+    }
 
     protected function getHeaderActions(): array
     {
