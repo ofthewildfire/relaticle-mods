@@ -18,6 +18,33 @@ class ListProjects extends ListRecords
     
     protected static string $resource = ProjectsResource::class;
 
+    public function mount(): void
+    {
+        parent::mount();
+        $this->loadSavedColumnPreferences();
+    }
+
+    protected function loadSavedColumnPreferences(): void
+    {
+        // Always force load our database preferences on every page load
+        $savedColumns = static::getSavedColumnVisibility('projects');
+        
+        if (!empty($savedColumns)) {
+            // Get all possible columns from the table
+            $table = $this->getTable();
+            $allColumns = collect($table->getColumns())->pluck('name')->toArray();
+            
+            // Calculate hidden columns (inverse of visible columns)
+            $hiddenColumns = array_diff($allColumns, $savedColumns);
+            
+            // FORCE override any existing session data with our database preferences
+            $sessionKey = $this->getTableColumnToggleSessionKey();
+            session()->put($sessionKey, $hiddenColumns);
+            session()->save(); // Force immediate save
+        }
+    }
+
+
     protected function getHeaderActions(): array
     {
         return [
