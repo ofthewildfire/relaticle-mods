@@ -119,30 +119,31 @@ trait HasTablePreferences
     }
 
     /**
-     * Get currently hidden columns by checking Livewire state
+     * Get currently hidden columns by checking user-toggled state
      */
     public function getCurrentlyHiddenColumns(): array
     {
-        $hiddenColumns = [];
+        $table = $this->getTable();
         
-        // Check if this component has toggled columns state
-        if (property_exists($this, 'toggledTableColumns')) {
-            // Filament stores toggled columns as an array where hidden = false
-            foreach ($this->toggledTableColumns as $columnName => $isVisible) {
-                if (!$isVisible) {
-                    $hiddenColumns[] = $columnName;
-                }
-            }
-        }
+        // Get all columns (including toggleable ones)
+        $allColumns = $table->getColumns();
+        $allColumnNames = array_map(fn($col) => $col->getName(), $allColumns);
+        
+        // Get currently visible columns (respects user toggles)
+        $visibleColumns = $table->getVisibleColumns();
+        $visibleColumnNames = array_map(fn($col) => $col->getName(), $visibleColumns);
+        
+        // Hidden columns = All columns - Visible columns
+        $hiddenColumns = array_diff($allColumnNames, $visibleColumnNames);
         
         // Log for debugging
         \Log::info('getCurrentlyHiddenColumns', [
-            'has_property' => property_exists($this, 'toggledTableColumns'),
-            'toggledTableColumns' => property_exists($this, 'toggledTableColumns') ? $this->toggledTableColumns : 'not found',
-            'hiddenColumns' => $hiddenColumns
+            'all_columns' => $allColumnNames,
+            'visible_columns' => $visibleColumnNames,
+            'hiddenColumns' => array_values($hiddenColumns)
         ]);
         
-        return $hiddenColumns;
+        return array_values($hiddenColumns);
     }
 
     /**
