@@ -27,8 +27,8 @@ trait HasTablePreferences
         }
 
         // Apply column visibility preferences
-        if (isset($preferences['hidden_columns'])) {
-            $table = static::applyColumnVisibilityPreferences($table, $preferences['hidden_columns']);
+        if (isset($preferences['visible_columns'])) {
+            $table = static::applyColumnVisibilityPreferences($table, $preferences['visible_columns']);
         }
 
         // Apply sort preferences
@@ -42,7 +42,7 @@ trait HasTablePreferences
     /**
      * Apply column visibility preferences
      */
-    private static function applyColumnVisibilityPreferences(Table $table, array $hiddenColumns): Table
+    private static function applyColumnVisibilityPreferences(Table $table, array $visibleColumns): Table
     {
         // Apply the saved column visibility states to each column
         $columns = $table->getColumns();
@@ -52,11 +52,11 @@ trait HasTablePreferences
             
             // Only apply to toggleable columns
             if ($column->isToggleable()) {
-                // Set the default hidden state without overwriting toggleable configuration
-                if (in_array($columnName, $hiddenColumns)) {
-                    $column->toggledHiddenByDefault(true);
+                // Set the default hidden state - if column is in visible list, show it
+                if (in_array($columnName, $visibleColumns)) {
+                    $column->toggledHiddenByDefault(false); // Show the column
                 } else {
-                    $column->toggledHiddenByDefault(false);
+                    $column->toggledHiddenByDefault(true);  // Hide the column
                 }
             }
         }
@@ -79,7 +79,7 @@ trait HasTablePreferences
     /**
      * Save column visibility state directly to database
      */
-    public function saveColumnVisibility(string $resourceName, array $hiddenColumns): void
+    public function saveColumnVisibility(string $resourceName, array $visibleColumns): void
     {
         $userId = auth()->id();
         
@@ -91,14 +91,14 @@ trait HasTablePreferences
         // Get existing preferences
         $existingPreferences = UserTablePreferences::getPreferences($userId, $resourceName);
         
-        // Update the hidden columns
-        $existingPreferences['hidden_columns'] = $hiddenColumns;
+        // Update the visible columns
+        $existingPreferences['visible_columns'] = $visibleColumns;
         $existingPreferences['updated_at'] = now()->toISOString();
 
         \Log::info('saveColumnVisibility', [
             'user_id' => $userId,
             'resource' => $resourceName,
-            'hidden_columns' => $hiddenColumns,
+            'visible_columns' => $visibleColumns,
             'existing_preferences' => $existingPreferences
         ]);
 
@@ -122,31 +122,22 @@ trait HasTablePreferences
     }
 
     /**
-     * Get currently hidden columns by checking user-toggled state
+     * Get currently visible columns by checking user-toggled state
      */
-    public function getCurrentlyHiddenColumns(): array
+    public function getCurrentlyVisibleColumns(): array
     {
         $table = $this->getTable();
-        
-        // Get all columns (including toggleable ones)
-        $allColumns = $table->getColumns();
-        $allColumnNames = array_map(fn($col) => $col->getName(), $allColumns);
         
         // Get currently visible columns (respects user toggles)
         $visibleColumns = $table->getVisibleColumns();
         $visibleColumnNames = array_map(fn($col) => $col->getName(), $visibleColumns);
         
-        // Hidden columns = All columns - Visible columns
-        $hiddenColumns = array_diff($allColumnNames, $visibleColumnNames);
-        
         // Log for debugging
-        \Log::info('getCurrentlyHiddenColumns', [
-            'all_columns' => $allColumnNames,
-            'visible_columns' => $visibleColumnNames,
-            'hiddenColumns' => array_values($hiddenColumns)
+        \Log::info('getCurrentlyVisibleColumns', [
+            'visible_columns' => $visibleColumnNames
         ]);
         
-        return array_values($hiddenColumns);
+        return $visibleColumnNames;
     }
 
     /**

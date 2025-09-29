@@ -38,14 +38,14 @@ class ListProjects extends ListRecords
 
     public function saveCurrentColumnPreferences(): void
     {
-        // Get the current hidden columns from Livewire state
-        $hiddenColumns = $this->getCurrentlyHiddenColumns();
+        // Get the current visible columns from Livewire state
+        $visibleColumns = $this->getCurrentlyVisibleColumns();
         
-        $this->saveColumnVisibility('projects', $hiddenColumns);
+        $this->saveColumnVisibility('projects', $visibleColumns);
         
         Notification::make()
             ->title('Preferences Saved')
-            ->body('Your column preferences have been saved successfully.')
+            ->body('Visible columns: ' . implode(', ', $visibleColumns))
             ->success()
             ->send();
     }
