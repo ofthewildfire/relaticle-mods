@@ -50,11 +50,14 @@ trait HasTablePreferences
         foreach ($columns as $column) {
             $columnName = $column->getName();
             
-            // If this column should be hidden, hide it
-            if (in_array($columnName, $hiddenColumns)) {
-                $column->hidden();
-            } else {
-                $column->visible();
+            // Only apply to toggleable columns
+            if ($column->isToggleable()) {
+                // If this column should be hidden, hide it
+                if (in_array($columnName, $hiddenColumns)) {
+                    $column->toggleable(isToggledHiddenByDefault: true);
+                } else {
+                    $column->toggleable(isToggledHiddenByDefault: false);
+                }
             }
         }
 
