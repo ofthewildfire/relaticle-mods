@@ -18,20 +18,23 @@ class ListProjects extends ListRecords
     
     protected static string $resource = ProjectsResource::class;
 
-    public function mount(): void
+    public function getTable(): \Filament\Tables\Table
     {
-        parent::mount();
-        $this->loadSavedColumnPreferences();
+        $table = parent::getTable();
+        
+        // Load saved preferences and force them into session after table is built
+        $this->loadSavedColumnPreferences($table);
+        
+        return $table;
     }
 
-    protected function loadSavedColumnPreferences(): void
+    protected function loadSavedColumnPreferences(\Filament\Tables\Table $table): void
     {
         // Always force load our database preferences on every page load
         $savedColumns = static::getSavedColumnVisibility('projects');
         
         if (!empty($savedColumns)) {
             // Get all possible columns from the table
-            $table = $this->getTable();
             $allColumns = collect($table->getColumns())->pluck('name')->toArray();
             
             // Calculate hidden columns (inverse of visible columns)
@@ -40,7 +43,6 @@ class ListProjects extends ListRecords
             // FORCE override any existing session data with our database preferences
             $sessionKey = $this->getTableColumnToggleSessionKey();
             session()->put($sessionKey, $hiddenColumns);
-            session()->save(); // Force immediate save
         }
     }
 
