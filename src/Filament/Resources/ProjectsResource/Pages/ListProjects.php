@@ -72,7 +72,7 @@ class ListProjects extends ListRecords
         
         Notification::make()
             ->title('Preferences Saved')
-            ->body('Visible columns: ' . implode(', ', $visibleColumns))
+            ->body('Your column preferences have been saved successfully.')
             ->success()
             ->send();
     }
