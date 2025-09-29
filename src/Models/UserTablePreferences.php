@@ -33,7 +33,16 @@ class UserTablePreferences extends Model
             ->where('resource_name', $resourceName)
             ->first();
 
-        return $preferences ? $preferences->preferences : [];
+        $result = $preferences ? $preferences->preferences : [];
+        
+        \Log::info('UserTablePreferences::getPreferences', [
+            'user_id' => $userId,
+            'resource_name' => $resourceName,
+            'found_record' => $preferences ? true : false,
+            'preferences' => $result
+        ]);
+
+        return $result;
     }
 
     /**
@@ -41,7 +50,13 @@ class UserTablePreferences extends Model
      */
     public static function savePreferences(int $userId, string $resourceName, array $preferences): void
     {
-        static::updateOrCreate(
+        \Log::info('UserTablePreferences::savePreferences - before save', [
+            'user_id' => $userId,
+            'resource_name' => $resourceName,
+            'preferences' => $preferences
+        ]);
+
+        $result = static::updateOrCreate(
             [
                 'user_id' => $userId,
                 'resource_name' => $resourceName,
@@ -50,5 +65,10 @@ class UserTablePreferences extends Model
                 'preferences' => $preferences,
             ]
         );
+
+        \Log::info('UserTablePreferences::savePreferences - after save', [
+            'saved_record_id' => $result->id,
+            'saved_preferences' => $result->preferences
+        ]);
     }
 }
