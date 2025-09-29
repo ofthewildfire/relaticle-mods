@@ -35,13 +35,14 @@ class ListProjects extends ListRecords
         
         if (!empty($savedColumns)) {
             // Get all possible columns from the table
-            $allColumns = collect($table->getColumns())->pluck('name')->toArray();
+            $allColumns = array_map(fn($col) => $col->getName(), $table->getColumns());
             
             // Calculate hidden columns (inverse of visible columns)
             $hiddenColumns = array_diff($allColumns, $savedColumns);
             
             // FORCE override any existing session data with our database preferences
-            $sessionKey = $this->getTableColumnToggleSessionKey();
+            // Use Filament's session key format for column toggles
+            $sessionKey = 'tables.' . static::class . '.toggledHiddenColumns';
             session()->put($sessionKey, $hiddenColumns);
         }
     }
