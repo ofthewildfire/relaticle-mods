@@ -52,11 +52,11 @@ trait HasTablePreferences
             
             // Only apply to toggleable columns
             if ($column->isToggleable()) {
-                // If this column should be hidden, hide it
+                // Set the default hidden state without overwriting toggleable configuration
                 if (in_array($columnName, $hiddenColumns)) {
-                    $column->toggleable(isToggledHiddenByDefault: true);
+                    $column->toggledHiddenByDefault(true);
                 } else {
-                    $column->toggleable(isToggledHiddenByDefault: false);
+                    $column->toggledHiddenByDefault(false);
                 }
             }
         }
