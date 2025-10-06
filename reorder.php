@@ -95,7 +95,7 @@ class ListEvents extends ListRecords
                 ->modalDescription('This will save your current column visibility settings for this table.')
                 ->modalSubmitActionLabel('Save'),
             
-            // Column reordering action
+            // NEW: Column reordering action
             Actions\Action::make('reorderColumns')
                 ->label('Reorder Columns')
                 ->icon('heroicon-o-arrows-up-down')
@@ -145,7 +145,7 @@ class ListEvents extends ListRecords
             ->send();
     }
     
-    // Get column data for the reorder form
+    // NEW: Get column data for the reorder form
     protected function getColumnOrderFormData(): array
     {
         $table = $this->getTable();
@@ -158,6 +158,7 @@ class ListEvents extends ListRecords
             
             // Skip columns without valid names
             if (empty($columnName) || !is_string($columnName)) {
+                \Log::warning('Skipping column with invalid name:', ['column' => get_class($column)]);
                 continue;
             }
             
@@ -173,7 +174,7 @@ class ListEvents extends ListRecords
         return $formData;
     }
 
-    // Save column order from form data
+    // NEW: Save column order from form data
     protected function saveColumnOrderFromForm(array $formData): void
     {
         if (empty($formData)) {
